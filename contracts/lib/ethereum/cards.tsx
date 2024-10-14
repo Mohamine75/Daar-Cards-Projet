@@ -1,3 +1,4 @@
+// @ts-ignore
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
@@ -61,20 +62,6 @@ const Home = () => {
       console.error("Error sending transaction:", error);
     }
   };
-
-  return (
-    <div style={{ padding: '20px' }}>
-  <h1>Ethereum with MetaMask</h1>
-  {account ? (
-    <div>
-      <p>Connected Account: {account}</p>
-  <button onClick={sendTransaction}>Send 0.01 ETH</button>
-  </div>
-  ) : (
-    <button onClick={connectWallet}>Connect Wallet</button>
-  )}
-  </div>
-);
 };
 
 export default Home;
