@@ -9,6 +9,8 @@ contract CardInstance {
         string nom;
         uint id;
         string imageUrl; /** On stocke juste un id, l'URL sera "calculé" */
+        uint prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
+        bool dispo;
     }
     Card cardType;
     uint globalId;
