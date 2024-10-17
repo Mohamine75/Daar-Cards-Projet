@@ -1,12 +1,12 @@
 pragma solidity ^0.8;
 
-import "./CardFactory.sol";
 import "./Main.sol";
 import "./erc721.sol";
 import "./safemath.sol";
 
-contract CardOwnership is CardFactory, ERC721 {
+contract CardOwnership is ERC721,CardInstance {
     using SafeMath for uint256;
+    event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
 
     mapping (uint => address) cardApprovals;
     /** _tokenId correspond à global */
@@ -22,7 +22,7 @@ contract CardOwnership is CardFactory, ERC721 {
         ownerCardCount[_from] = ownerCardCount[_from].sub(1);
         ownerCardCount[_to] = ownerCardCount[_to].add(1);
         cardToOwner[_tokenId] = _to;
-        Transfer(_from, _to, _tokenId);
+        emit Transfer(_from, _to, _tokenId);
     }
 
     function transfer(address _to, uint256 _tokenId) public override onlyOwnerOf(_tokenId) {

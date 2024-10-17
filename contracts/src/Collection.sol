@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8;
 
-import "./CardFactory.sol";
+import "./CardInstance.sol";
 import "./safemath.sol";
 
 contract Collection {
   string public name;
   int public cardCount;
   uint16 id;
-  CardFactory.Card[] public cards;
+  Card[] public cards;
 
 
   constructor(string memory _name, int _cardCount, uint16 _id) {

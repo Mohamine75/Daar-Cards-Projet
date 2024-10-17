@@ -3,7 +3,6 @@ pragma solidity ^0.8;
 
 import "./Collection.sol";
 import "./ownable.sol";
-import "./CardFactory.sol";
 import "./CardOwnership.sol";
 import "./safemath.sol";
 import "./erc721.sol";
@@ -18,9 +17,9 @@ contract Main is Ownable {
   //mapping(uint16 => Card[]) public collectionToCards; /** Déplacer ? mapping idCollection => Card[] */
   mapping (address => uint) public ownerCardCount;
   mapping (uint => address) public cardToOwner;
-    mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
-    CardInstance[] public cards;        /** Cartes existantes */
-   uint public openBoosterFee = 0.001 ether;
+  mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
+  uint public openBoosterFee = 0.001 ether;
+  CardInstance[] public cards;
   event NewCard(string _name, string _imageUrlId, uint16 _collectionId, uint cardId,uint prix,bool dispo);
   constructor() {
     count = 0;
@@ -36,14 +35,14 @@ contract Main is Ownable {
       cardToOwner[_globalCardId] = _to;
       ownerCardCount[_to].add(1);
       /** DONE : Appeler un événement (comme Transfer) */
-      emit  Transfer(msg.sender,_to,_globalCardId);
+      emit Transfer(msg.sender,_to,_globalCardId);
   }
 
   function _createCard(string _name, string _imageUrlId, uint16 _collectionId) external onlyOwner {
     require(collections[_collectionId].cards.size < collections[_collectionId].cardCount);
     uint cardIdInCollection = collections[_collectionId].cards.size;
-    collections[_collectionId].cards.push(Card(_name, cardIdInCollection, _imageUrlId));
-    emit NewCard(_name, _imageUrlId, _collectionId, cardId,0,false);
+    collections[_collectionId].cards.push(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
+    emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
   }
 
   function openBooster(uint16 _collectionId, uint _amountOfCards, address _to) external payable {
@@ -57,6 +56,7 @@ contract Main is Ownable {
       totalCardCount = totalCardCount.add(1);
       CardInstance storage card = new CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0);
       assignCard(_to, globalId);
+      cards.push(CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0));
     }
   }
     function setOpeningBoosterFee(uint _fee) external onlyOwner {
@@ -70,12 +70,24 @@ contract Main is Ownable {
 
     function achat(uint256 _cardId) external payable {
         require(msg.value == cards[_cardId].prix);
-        _transfer(cardToOwner[_cardId], msg.sender, _cardId);
+        CardOwnership._transfer(cardToOwner[_cardId], msg.sender, _cardId);
     }
 
+  function changer_prix(uint256 _cardId,uint32 _prix) external onlyOwnerOf(_cardId){
+    cards[_cardId].Card.prix = _prix;
+  }
+  function mettre_en_vente(uint256 _cardId) external onlyOwnerOf(_cardId){
+    cards[_cardId].Card.dispo = true;
+  }
+  function retirer_de_vente(uint256 _cardId) external onlyOwnerOf(_cardId){
+    cards[_cardId].Card.dispo = false;
+  }
 
 }
   /** TODO : faire une fonction d'échange avec événement // faite */
   /** TODO : faire une fonction d'achat avec événement | Ajouter un fee de transfert, pour récupérer de l'argent sur les ventes de cartes hehe
               => Ne pas oublier le modifier onlyOwner pour les fonctions de modification de frais de transfert et de withdraw // fait
     */
+
+
+  // Le globalId de cardIstance c'est sa position dans Collection
