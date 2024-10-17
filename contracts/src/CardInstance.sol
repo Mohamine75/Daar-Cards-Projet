@@ -15,10 +15,6 @@ contract CardInstance {
     uint globalId;
 
 
-    modifier onlyOwnerOf(uint _cardId) {
-        require(msg.sender == cardToOwner[_cardId]);
-        _;
-    }
 
     constructor(Card memory _cardType, uint _globalId) {
         cardType = _cardType;

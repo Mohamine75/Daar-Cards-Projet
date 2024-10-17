@@ -3,25 +3,29 @@ pragma solidity ^0.8;
 import "./Main.sol";
 import "./erc721.sol";
 import "./safemath.sol";
+import "./CardInstance.sol";
 
-contract CardOwnership is ERC721,CardInstance {
+contract CardOwnership is ERC721 {
     using SafeMath for uint256;
-    event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
 
     mapping (uint => address) cardApprovals;
     /** _tokenId correspond à global */
     function ownerOf(uint256 _tokenId) public view override returns (address _owner) {
-        return cardToOwner[_tokenId];
+        return Main.cardToOwner[_tokenId];
     }
 
     function balanceOf(address _owner) public view override returns (uint256 _balance) {
-        return ownerCardCount[_owner];
+        return Main.ownerCardCount[_owner];
     }
 
+    modifier onlyOwnerOf(uint _cardId){
+        require(msg.sender == Main.cardToOwner[_cardId]);
+        _;
+    }
     function _transfer(address _from, address _to, uint256 _tokenId) public {
-        ownerCardCount[_from] = ownerCardCount[_from].sub(1);
-        ownerCardCount[_to] = ownerCardCount[_to].add(1);
-        cardToOwner[_tokenId] = _to;
+        Main.ownerCardCount[_from] = Main.ownerCardCount[_from].sub(1);
+        Main.ownerCardCount[_to] = Main.ownerCardCount[_to].add(1);
+        Main.cardToOwner[_tokenId] = _to;
         emit Transfer(_from, _to, _tokenId);
     }
 
