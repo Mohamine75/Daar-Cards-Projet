@@ -8,7 +8,7 @@ contract Collection {
   string public name;
   int public cardCount;
   uint16 id;
-  Card[] public cards;
+  CardInstance[] public cards;
 
 
   constructor(string memory _name, int _cardCount, uint16 _id) {

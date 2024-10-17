@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './styles.module.css'
 import * as ethereum from '@/lib/ethereum'
 import * as main from '@/lib/main'
+import 'bulma/css/bulma.min.css';
+
 
 type Canceler = () => void
 const useAffect = (
@@ -42,8 +44,50 @@ const useWallet = () => {
 export const App = () => {
   const wallet = useWallet()
   return (
-    <div className={styles.body}>
-      <h1>Welcome to Pokémon TCG</h1>
-    </div>
+    <nav className="navbar has-shadow" role="navigation" aria-label="main navigation" style={{ borderBottom: '2px solid #ccc' }}>
+      <div className="navbar-brand">
+        <a className="navbar-item" href="#">
+          <img src="src/assets/logo_TCG.png" alt="Pokemon TCG Logo"
+               style={{ width: '100px', height: '100px', objectFit: 'contain' }}  // Ajustement de l'image
+          />
+        </a>
+        <a
+          role="button"
+          className="navbar-burger"
+          aria-label="menu"
+          aria-expanded="false"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div id="navbarBasicExample" className="navbar-menu">
+        <div className="navbar-start">
+          <a className="navbar-item">
+            Home
+          </a>
+          <a className="navbar-item">
+            Documentation
+          </a>
+          <a className="navbar-item">
+            Collections
+          </a>
+        </div>
+
+        <div className="navbar-end">
+          <div className="navbar-item">
+            <div className="buttons">
+              <a className="button is-primary">
+                <strong>Sign up</strong>
+              </a>
+              <a className="button is-light">
+                Log in
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
   )
 }
