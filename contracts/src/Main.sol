@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8;
+pragma solidity ^0.8.20;
 
 import "./Collection.sol";
 import "./ownable.sol";
@@ -8,10 +8,9 @@ import "./erc721.sol";
 import "./CardInstance.sol";
 import "./CardOwnership.sol";
 
-contract Main is Ownable {
+contract mainContract is Ownable {
   using SafeMath for uint256;
-
-  uint private count; /** nombre de collections */
+  uint16 private count; /** nombre de collections */
   uint private totalCardCount;
   mapping(uint => Collection) private collections;
   //mapping(uint16 => Card[]) public collectionToCards; /** Déplacer ? mapping idCollection => Card[] */
@@ -29,9 +28,9 @@ contract Main is Ownable {
     totalCardCount = 0;
   }
 
-  function createCollection(string calldata name, int cardCount) external onlyOwner {
+  function createCollection(string calldata name, uint cardCount) external onlyOwner {
     collections[count] = new Collection(name, cardCount, count); /** On assigne à la collection un id unique */
-    count = count.add(1);
+    count++;
   }
 
   function assignCard(address _to, uint _globalCardId) internal onlyOwner {
@@ -41,11 +40,11 @@ contract Main is Ownable {
       emit Transfer(msg.sender,_to,_globalCardId);
   }
 
-  function _createCard(string _name, string _imageUrlId, uint16 _collectionId) external onlyOwner {
-    require(collections[_collectionId].cards.size < collections[_collectionId].cardCount);
-    uint cardIdInCollection = collections[_collectionId].cards.size;
-    collections[_collectionId].cards.push(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
-    emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
+  function _createCard(string memory _name, string memory _imageUrlId, uint16 _collectionId) external onlyOwner {
+    require(collections[_collectionId].cards.length< collections[_collectionId].cardCount, "Collection is full");
+    uint cardIdInCollection = collections[_collectionId].cards.length;
+    collections[_collectionId].cards.push(CardInstance.Card(_name, cardIdInCollection, _imageUrlId, 0, false));
+    emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection, 0, false);
   }
 
   function openBooster(uint16 _collectionId, uint _amountOfCards, address _to) external payable {
@@ -57,7 +56,7 @@ contract Main is Ownable {
       uint cardIdInCollection = rand % collections[_collectionId].cards.size;
       uint globalId = totalCardCount;
       totalCardCount = totalCardCount.add(1);
-      CardInstance storage card = new CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0);
+      CardInstance card = new CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId);
       assignCard(_to, globalId);
       cards.push(CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0));
     }
@@ -111,8 +110,22 @@ contract Main is Ownable {
   }
 
   modifier onlyOwnerOf(uint _cardId){
-    require(msg.sender == Main.cardToOwner[_cardId]);
+    require(msg.sender == cardToOwner[_cardId]);
     _;
+  }
+
+  function _getCardToOwner(uint _tokenId) public view returns (address) {
+    return cardToOwner[_tokenId];
+  }
+
+  function _getOwnerCardCount(address _owner) public view returns(uint){
+    return ownerCardCount[_owner];
+  }
+  function _setterOwnerCardCount(address _owner,uint valeur) public {
+    ownerCardCount[_owner] = valeur;
+  }
+  function _setterCardToOwner(uint _cardId,address _owner)public {
+    cardToOwner[_cardId] = _owner;
   }
 }
   // Le globalId de cardIstance c'est sa position dans Collection

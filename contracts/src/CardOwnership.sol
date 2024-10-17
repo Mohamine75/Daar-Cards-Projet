@@ -7,25 +7,29 @@ import "./CardInstance.sol";
 
 contract CardOwnership is ERC721 {
     using SafeMath for uint256;
+    mainContract _mainContract;
 
+    constructor(address _mainAddress) {
+        _mainContract = mainContract(_mainAddress);  // Initialise l'instance de Main avec l'adresse du contrat déployé
+    }
     mapping (uint => address) cardApprovals;
     /** _tokenId correspond à global */
     function ownerOf(uint256 _tokenId) public view override returns (address _owner) {
-        return Main.cardToOwner[_tokenId];
+        return _mainContract._getCardToOwner(_tokenId);
     }
 
     function balanceOf(address _owner) public view override returns (uint256 _balance) {
-        return Main.ownerCardCount[_owner];
+        return _mainContract._getOwnerCardCount(_owner);
     }
 
     modifier onlyOwnerOf(uint _cardId){
-        require(msg.sender == Main.cardToOwner[_cardId]);
+        require(msg.sender == _mainContract._getCardToOwner(_cardId));
         _;
     }
     function _transfer(address _from, address _to, uint256 _tokenId) public {
-        Main.ownerCardCount[_from] = Main.ownerCardCount[_from].sub(1);
-        Main.ownerCardCount[_to] = Main.ownerCardCount[_to].add(1);
-        Main.cardToOwner[_tokenId] = _to;
+        _mainContract._setterOwnerCardCount(_from,_mainContract._getOwnerCardCount(_from).sub(1));
+        _mainContract._setterOwnerCardCount(_to,_mainContract._getOwnerCardCount(_to).add(1));
+        _mainContract._setterCardToOwner(_tokenId,_to);
         emit Transfer(_from, _to, _tokenId);
     }
 
@@ -38,7 +42,8 @@ contract CardOwnership is ERC721 {
         Approval(msg.sender, _to, _tokenId);
     }
 
-    function takeOwnership(uint256 _tokenId) public {
+
+    function takeOwnership(uint256 _tokenId) public override {
         require(cardApprovals[_tokenId] == msg.sender);
         address owner = ownerOf(_tokenId);
         _transfer(owner, msg.sender, _tokenId);
