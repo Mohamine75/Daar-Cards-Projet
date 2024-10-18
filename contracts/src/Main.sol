@@ -6,7 +6,6 @@ import "./ownable.sol";
 import "./safemath.sol";
 import "./erc721.sol";
 import "./CardInstance.sol";
-import "./CardOwnership.sol";
 
 contract Main is Ownable {
   using SafeMath for uint256;
@@ -29,7 +28,7 @@ contract Main is Ownable {
     totalCardCount = 0;
   }
 
-  function createCollection(string calldata name, int cardCount) external onlyOwner {
+  function createCollection(string calldata name, uint cardCount) external onlyOwner {
     collections[count] = new Collection(name, cardCount, count); /** On assigne à la collection un id unique */
     count = count.add(1);
   }
@@ -41,10 +40,11 @@ contract Main is Ownable {
       emit Transfer(msg.sender,_to,_globalCardId);
   }
 
-  function _createCard(string _name, string _imageUrlId, uint16 _collectionId) external onlyOwner {
-    require(collections[_collectionId].cards.size < collections[_collectionId].cardCount);
-    uint cardIdInCollection = collections[_collectionId].cards.size;
-    collections[_collectionId].cards.push(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
+  function _createCard(string memory _name, string memory _imageUrlId, uint16 _collectionId) external onlyOwner {
+    // TODO :require(collections[_collectionId].collectionCards.length < collections[_collectionId].cardCount);
+    Collection tmp = collections[_collectionId];
+    uint cardIdInCollection = tmp.getCurrentCardCount();
+    tmp.addCardToCollection(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
     emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
   }
 
@@ -54,10 +54,11 @@ contract Main is Ownable {
     for (uint i = 0; i < _amountOfCards; i++) {
       /** TODO : modifier la façon de générer rand ! */
       uint rand = uint(keccak256("modifier"));
-      uint cardIdInCollection = rand % collections[_collectionId].cards.size;
+      uint cardIdInCollection = rand % collections[_collectionId].getCurrentCardCount();
       uint globalId = totalCardCount;
       totalCardCount = totalCardCount.add(1);
-      CardInstance storage card = new CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0);
+      CardInstance card = new CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0);
+      cards.push(card);
       assignCard(_to, globalId);
       cards.push(CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0));
     }
@@ -73,7 +74,7 @@ contract Main is Ownable {
 
     function achat(uint256 _cardId) external payable {
         require(msg.value == cards[_cardId].prix);
-        CardOwnership._transfer(cardToOwner[_cardId], msg.sender, _cardId);
+        CardInstance._transfer(cardToOwner[_cardId], msg.sender, _cardId);
     }
 
   function changer_prix(uint256 _cardId,uint32 _prix) external onlyOwnerOf(_cardId){

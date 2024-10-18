@@ -5,15 +5,28 @@ import "./CardInstance.sol";
 import "./safemath.sol";
 
 contract Collection {
+  using SafeMath for uint256;
+
   string public name;
-  int public cardCount;
-  uint16 id;
-  CardInstance[] public cards;
+  uint public cardCount;
+  uint currentCardCount;
+  uint id;
+  CardInstance.Card[] public collectionCards;
 
 
-  constructor(string memory _name, int _cardCount, uint16 _id) {
+  constructor(string memory _name, uint _cardCount, uint _id) {
     name = _name;
     cardCount = _cardCount;
+    currentCardCount = 0;
     id = _id;
+  }
+
+  function getCurrentCardCount() public returns (uint) {
+    return currentCardCount;
+  }
+
+  function addCardToCollection(CardInstance.Card memory _card) public returns (uint) {
+    collectionCards[currentCardCount] = _card;
+    currentCardCount = currentCardCount.add(1);
   }
 }
