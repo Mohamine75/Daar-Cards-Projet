@@ -60,7 +60,7 @@ contract CardInstance is ERC721, Ownable {
         _transfer(owner, msg.sender, _tokenId);
     }
 
-    function getPrix() public returns (uint32) {
+    function getPrix() public view returns (uint32) {
         return cardType.prix;
     }
 

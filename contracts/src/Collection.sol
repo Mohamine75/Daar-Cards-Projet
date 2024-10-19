@@ -21,16 +21,17 @@ contract Collection {
     id = _id;
   }
 
-  function getCurrentCardCount() public returns (uint) {
+  function getCurrentCardCount() public view returns (uint) {
     return currentCardCount;
   }
 
-  function addCardToCollection(CardInstance.Card memory _card) public returns (uint) {
+  function addCardToCollection(CardInstance.Card memory _card) public  { // tu avais mis return uint, pourquoi ?
     collectionCards[currentCardCount] = _card;
     currentCardCount = currentCardCount.add(1);
+
   }
 
-  function getCard(uint _id) public returns (CardInstance.Card memory) {
+  function getCard(uint _id) public view returns (CardInstance.Card memory) {
       return collectionCards[_id];
   }
 }
