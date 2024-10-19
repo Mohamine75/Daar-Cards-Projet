@@ -4,28 +4,27 @@ import * as ethereum from '@/lib/ethereum';
 import * as main from '@/lib/main';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import 'bulma/css/bulma.min.css';
-import { Layout } from '@/components/Layout'
-import { Home } from '@/components/Home'
-
+import { Layout } from '@/components/Layout';
+import Profil from '@/components/Profil';
 
 type Canceler = () => void;
 const useAffect = (
   asyncEffect: () => Promise<Canceler | void>,
   dependencies: any[] = []
 ) => {
-  const cancelerRef = useRef<Canceler | void>()
+  const cancelerRef = useRef<Canceler | void>();
   useEffect(() => {
     asyncEffect()
       .then(canceler => (cancelerRef.current = canceler))
-      .catch(error => console.warn('Uncatched error', error))
+      .catch(error => console.warn('Uncatched error', error));
     return () => {
       if (cancelerRef.current) {
-        cancelerRef.current()
-        cancelerRef.current = undefined
+        cancelerRef.current();
+        cancelerRef.current = undefined;
       }
-    }
-  }, dependencies)
-}
+    };
+  }, dependencies);
+};
 
 const useWallet = () => {
   const [details, setDetails] = useState<ethereum.Details>();
@@ -34,26 +33,27 @@ const useWallet = () => {
     const details_ = await ethereum.connect('metamask');
     console.log('Wallet details:', details_); // Debug log
     if (!details_) {
-      console.log("Probleme details")
+      console.log("Probleme details");
       return;
     }
     setDetails(details_);
     const contract_ = await main.init(details_);
     if (!contract_) {
-      console.log('probleem contrat')
+      console.log('Probleme contrat');
       return;
     }
     setContract(contract_);
   }, []);
   return useMemo(() => {
     if (!details || !contract) {
-      console.log("probleme useMemo")
-      return null;
-    }// Modifie ceci pour retourner null
+      console.log("Probleme useMemo");
+      return null; // Modifie ceci pour retourner null
+    }
     console.log("Chargement réussi");
     return { details, contract };
   }, [details, contract]);
 };
+
 export const App = () => {
   const wallet = useWallet();
   console.log('Wallet in App:', wallet); // Debug log
@@ -65,7 +65,7 @@ export const App = () => {
     <BrowserRouter>
       <Layout>
         <Routes>
-          {/* Tes routes ici */}
+          <Route path="/profile" element={<Profil wallet={wallet} />} /> {/* Chemin vers le Profil */}
         </Routes>
       </Layout>
     </BrowserRouter>
