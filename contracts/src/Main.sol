@@ -10,22 +10,23 @@ import "./CardInstance.sol";
 contract Main is Ownable {
   using SafeMath for uint256;
 
+  CardInstance internal cardInstance; 
   uint private count; /** nombre de collections */
   uint private totalCardCount;
   mapping(uint => Collection) private collections;
   //mapping(uint16 => Card[]) public collectionToCards; /** Déplacer ? mapping idCollection => Card[] */
-  mapping (address => uint) public ownerCardCount;
-  mapping (uint => address) public cardToOwner;
-  mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
+
+  // mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
   uint public openBoosterFee = 0.001 ether;
   CardInstance[] public cards;
 
   event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
   event NewCard(string _name, string _imageUrlId, uint16 _collectionId, uint cardId,uint prix,bool dispo);
 
-  constructor() {
+  constructor(address _cardInstanceAddress) {
     count = 0;
     totalCardCount = 0;
+    cardInstance = CardInstance(_cardInstanceAddress);
   }
 
   function createCollection(string calldata name, uint cardCount) external onlyOwner {
@@ -34,8 +35,9 @@ contract Main is Ownable {
   }
 
   function assignCard(address _to, uint _globalCardId) internal onlyOwner {
-      cardToOwner[_globalCardId] = _to;
-      ownerCardCount[_to].add(1);
+      // $$CardInstance.cardToOwner[_globalCardId] = _to;
+      cardInstance.assign(_to, _globalCardId);
+      cardInstance.incrementOwnerCardCount(_to);
       /** DONE : Appeler un événement (comme Transfer) */
       emit Transfer(msg.sender,_to,_globalCardId);
   }
@@ -57,10 +59,10 @@ contract Main is Ownable {
       uint cardIdInCollection = rand % collections[_collectionId].getCurrentCardCount();
       uint globalId = totalCardCount;
       totalCardCount = totalCardCount.add(1);
-      CardInstance card = new CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0);
+      // CardInstance card = new CardInstance(collections[_collectionId].collectioncards[cardIdInCollection], globalId,false,0);
+      CardInstance card = new CardInstance(collections[_collectionId].getCard(cardIdInCollection), globalId);
       cards.push(card);
       assignCard(_to, globalId);
-      cards.push(CardInstance(collections[_collectionId].cards[cardIdInCollection], globalId,false,0));
     }
   }
     function setOpeningBoosterFee(uint _fee) external onlyOwner {
@@ -72,47 +74,31 @@ contract Main is Ownable {
         require(success, "Transfer failed.");
     }
 
-    function achat(uint256 _cardId) external payable {
-        require(msg.value == cards[_cardId].prix);
-        CardInstance._transfer(cardToOwner[_cardId], msg.sender, _cardId);
-    }
 
-  function changer_prix(uint256 _cardId,uint32 _prix) external onlyOwnerOf(_cardId){
-    cards[_cardId].Card.prix = _prix;
-  }
-  function mettre_en_vente(uint256 _cardId) external onlyOwnerOf(_cardId){
-    cards[_cardId].Card.dispo = true;
-  }
-  function retirer_de_vente(uint256 _cardId) external onlyOwnerOf(_cardId){
-    cards[_cardId].Card.dispo = false;
-  }
 
   /** TODO : faire une fonction d'échange avec événement // faite */
   /** TODO : faire une fonction d'achat avec événement | Ajouter un fee de transfert, pour récupérer de l'argent sur les ventes de cartes hehe
               => Ne pas oublier le modifier onlyOwner pour les fonctions de modification de frais de transfert et de withdraw // fait
     */
 
-  function getCardsByOwner(address _owner) external view returns (uint[] memory) {
-    uint cardCount = ownerCardCount[_owner]; // Nombre de cartes possédées par l'adresse
-    uint[] memory ownedCardIds = new uint[](cardCount); // Tableau pour stocker les IDs des cartes
+  // TODO : je pense qu'il y a un problème avec cette fonction
+  // function getCardsByOwner(address _owner) external view returns (uint[] memory) {
+  //   uint cardCount = cardInstance.getOwnerCardCount(_owner); // Nombre de cartes possédées par l'adresse
+  //   uint[] memory ownedCardIds = new uint[](cardCount); // Tableau pour stocker les IDs des cartes
 
-    uint index = 0;
-    for (uint i = 0; i < totalCardCount; i++) { // Parcours de toutes les cartes
-      if (cardToOwner[i] == _owner) { // Vérifie si l'adresse correspond au propriétaire de la carte
-        ownedCardIds[index] = i; // Ajoute l'ID de la carte au tableau
-        index++;
-      }
-    }
+  //   uint index = 0;
+  //   for (uint i = 0; i < totalCardCount; i++) { // Parcours de toutes les cartes
+  //     if (CardInstance.cardToOwner[i] == _owner) { // Vérifie si l'adresse correspond au propriétaire de la carte
+  //       ownedCardIds[index] = i; // Ajoute l'ID de la carte au tableau
+  //       index++;
+  //     }
+  //   }
 
-    return ownedCardIds; // Retourne le tableau des IDs des cartes
-  }
-  function getCardDetails(uint _cardId) external view returns (CardInstance.Card memory) {
-    require(_cardId < cards.length, "Card does not exist."); // Vérifie que la carte existe
-    return cards[_cardId].cardType; // Retourne les détails de la carte
-  }
+  //   return ownedCardIds; // Retourne le tableau des IDs des cartes
+  // }
 
   modifier onlyOwnerOf(uint _cardId){
-    require(msg.sender == Main.cardToOwner[_cardId]);
+    require(msg.sender == cardInstance.getCardOwner(_cardId));
     _;
   }
 }

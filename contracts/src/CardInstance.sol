@@ -2,7 +2,7 @@ pragma solidity ^0.8;
 
 import "./Main.sol";
 
-contract CardInstance is ERC721 {
+contract CardInstance is ERC721, Ownable {
     using SafeMath for uint256;
 
     /** Décrit un modèle de carte */
@@ -16,32 +16,32 @@ contract CardInstance is ERC721 {
     Card cardType;
     uint globalId;
 
-
-
     constructor(Card memory _cardType, uint _globalId) {
         cardType = _cardType;
         globalId = _globalId;
     }
 
+    mapping (address => uint) public ownerCardCount;
+    mapping (uint => address) public cardToOwner;
 
     mapping (uint => address) cardApprovals;
     /** _tokenId correspond à global */
     function ownerOf(uint256 _tokenId) public view override returns (address _owner) {
-        return Main.cardToOwner[_tokenId];
+        return cardToOwner[_tokenId];
     }
 
     function balanceOf(address _owner) public view override returns (uint256 _balance) {
-        return Main.ownerCardCount[_owner];
+        return ownerCardCount[_owner];
     }
 
     modifier onlyOwnerOf(uint _cardId){
-        require(msg.sender == Main.cardToOwner[_cardId]);
+        require(msg.sender == cardToOwner[_cardId]);
         _;
     }
     function _transfer(address _from, address _to, uint256 _tokenId) public {
-        Main.ownerCardCount[_from] = Main.ownerCardCount[_from].sub(1);
-        Main.ownerCardCount[_to] = Main.ownerCardCount[_to].add(1);
-        Main.cardToOwner[_tokenId] = _to;
+        ownerCardCount[_from] = ownerCardCount[_from].sub(1);
+        ownerCardCount[_to] = ownerCardCount[_to].add(1);
+        cardToOwner[_tokenId] = _to;
         emit Transfer(_from, _to, _tokenId);
     }
 
@@ -51,7 +51,7 @@ contract CardInstance is ERC721 {
 
     function approve(address _to, uint256 _tokenId) public override onlyOwnerOf(_tokenId)  {
         cardApprovals[_tokenId] = _to;
-        Approval(msg.sender, _to, _tokenId);
+        emit Approval(msg.sender, _to, _tokenId);
     }
 
     function takeOwnership(uint256 _tokenId) public override {
@@ -59,5 +59,49 @@ contract CardInstance is ERC721 {
         address owner = ownerOf(_tokenId);
         _transfer(owner, msg.sender, _tokenId);
     }
+
+    function getPrix() public returns (uint32) {
+        return cardType.prix;
+    }
+
+    // todo : FIX ces fonctions, elles sont facultatives, si elles posent problème, on les vire
+    // function achat(uint256 _cardId) external payable {
+    //     require(msg.value == Main.cards[_cardId].getPrix());
+    //     _transfer(Main.cardToOwner[_cardId], msg.sender, _cardId);
+    // }
+//   function changer_prix(uint256 _cardId,uint32 _prix) external onlyOwnerOf(_cardId){
+//     Main.cards[_cardId].setPrix(_prix);
+//   }
+//   function mettre_en_vente(uint256 _cardId) external onlyOwnerOf(_cardId){
+//     Main.cards[_cardId].Card.dispo = true;
+//   }
+//   function retirer_de_vente(uint256 _cardId) external onlyOwnerOf(_cardId){
+//     Main.cards[_cardId].Card.dispo = false;
+//   }
+
+//   function getCardDetails(uint _cardId) external view returns (CardInstance.Card memory) {
+//     require(_cardId < Main.cards.length, "Card does not exist."); // Vérifie que la carte existe
+//     return Main.cards[_cardId].cardType; // Retourne les détails de la carte
+//   }
+
+  function assign(address _to, uint _globalCardId) public onlyOwner {
+    cardToOwner[_globalCardId] = _to;
+  }
+
+  function incrementOwnerCardCount(address _to) public onlyOwner {
+    ownerCardCount[_to] = ownerCardCount[_to].add(1);
+  }
+
+  function getOwnerCardCount(address _to) public view returns(uint) {
+    return ownerCardCount[_to];
+  }
+
+  function getCardOwner(uint _cardId) public view returns (address) {
+    return cardToOwner[_cardId];
+  }
+  
+  function setCardOwner(uint _cardId, address _owner) public onlyOwner {
+    cardToOwner[_cardId] = _owner;
+  }
 }
 

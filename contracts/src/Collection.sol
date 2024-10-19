@@ -29,4 +29,8 @@ contract Collection {
     collectionCards[currentCardCount] = _card;
     currentCardCount = currentCardCount.add(1);
   }
+
+  function getCard(uint _id) public returns (CardInstance.Card memory) {
+      return collectionCards[_id];
+  }
 }
