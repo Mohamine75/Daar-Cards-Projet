@@ -89,7 +89,11 @@ contract CardInstance is ERC721, Ownable {
   }
 
   function incrementOwnerCardCount(address _to) public onlyOwner {
+      if(ownerCardCount[_to] == 0) {
+          ownerCardCount[_to] = 1;
+      }else{
     ownerCardCount[_to] = ownerCardCount[_to].add(1);
+      }
   }
 
   function getOwnerCardCount(address _to) public view returns(uint) {

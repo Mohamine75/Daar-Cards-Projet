@@ -11,7 +11,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div>
       <Navbar />
-      <Link to="/profile">Home</Link> {/* Lien vers le Profil */}
+      <Link to="/profile">Go To profil</Link> {/* Lien vers le Profil */}
       {children} {/* Affiche les enfants ici */}
     </div>
   );

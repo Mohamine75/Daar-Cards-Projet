@@ -8,7 +8,7 @@ export const correctChain = () => {
 }
 
 // Adresse du contrat Main (à mettre à jour dynamiquement après déploiement)
-const mainAddr = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+export const mainAddr = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
 export const init = async (details: ethereum.Details) => {
   const { provider, signer } = details;
@@ -69,5 +69,25 @@ export const getCardDetails = async (details: ethereum.Details, cardId: number):
   } catch (error) {
     console.error('Error fetching card details:', error);
     return null;
+  }
+};
+
+
+export const listenToDebugEvent = async (
+  details: ethereum.Details,callback: (message: string) => void // Ajoutez ce paramètre
+) => {
+  const contract = await init(details);
+  try {
+    // Écouter l'événement Debug
+    contract.events.Debug({ fromBlock: 'latest' })
+      .on('data', (event: { returnValues: { message: any; }; }) => {
+        console.log("Debug Event Received:", event.returnValues.message); // Affiche le message du debug
+        callback(event.returnValues.message); // Appelez le callback avec le message
+      })
+      .on('error', (error: any) => {
+        console.error('Error listening to Debug event:', error);
+      });
+  } catch (error) {
+    console.error('Error setting up Debug event listener:', error);
   }
 };
