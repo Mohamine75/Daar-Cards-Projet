@@ -1,13 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pokémon TCG</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>CryptoZombies front-end</title>
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script language="javascript" type="text/javascript" src="web3.js"></script>
+</head>
+<body>
+<div id="txStatus"></div>
+<div id="zombies"></div>
+
+<script>
+  import { getCardDetails } from './src/lib/main.js'
+  import Web3 from 'web3'
+
+  var cards;
+  var userAccount;
+
+  function startApp() {
+    const abi_main = [
+      {
+        'inputs': [
+          {
+            'internalType': 'address',
+            'name': '_cardInstanceAddress',
+            'type': 'address',
+          },
+        ],
+        'stateMutability': 'nonpayable',
+        'type': 'constructor',
+      },
+      {
+        'anonymous': false,
+        'inputs': [
+          {
+            'indexed': false,
+            'internalType': 'string',
+            'name': 'message',
+            'type': 'string',
+          },
+          {
+            'indexed': false,
+            'internalType': 'address',
+            'name': 'owner',
+            'type': 'address',
+          },
+        ],
+        'name': 'Debug',
+        'type': 'event',
+      },
+      {
+        'anonymous': false,
+        'inputs': [
+          {
+            'indexed': false,
+            'internalType': 'string',
+            'name': '_name',
+            'type': 'string',
+          },
+          {
+            'indexed': false,
+            'internalType': 'string',
+            'name': '_imageUrlId',
+            'type': 'string',
+          },
+          {
+            'indexed': false,
+            'internalType': 'uint16',
+            'name': '_collectionId',
+            'type': 'uint16',
+          },
+          {
+            'indexed': false,
+            'internalType': 'uint256',
+            'name': 'cardId',
+            'type': 'uint256',
+          },
+          {
+            'indexed': false,
+            'internalType': 'uint256',
+            'name': 'prix',
+            'type': 'uint256',
+          },
+          {
+            'indexed': false,
+            'internalType': 'bool',
+            'name': 'dispo',
+            'type': 'bool',
+          },
+        ],
+        'name': 'NewCard',
+        'type': 'event',
+      },
+      {
+        'anonymous': false,
+        'inputs': [
+          {
+            'indexed': true,
+            'internalType': 'address',
+            'name': 'previousOwner',
+            'type': 'address',
+          },
+          {
+            'indexed': true,
+            'internalType': 'address',
+            'name': 'newOwner',
+            'type': 'address',
+          },
+        ],
+        'name': 'OwnershipTransferred',
+        'type': 'event',
+      },
+      {
+        'anonymous': false,
+        'inputs': [
+          {
+            'indexed': true,
+            'internalType': 'address',
+            'name': '_from',
+            'type': 'address',
+          },
+          {
+            'indexed': true,
+            'internalType': 'address',
+            'name': '_to',
+            'type': 'address',
+          },
+          {
+            'indexed': false,
+            'internalType': 'uint256',
+            'name': '_tokenId',
+            'type': 'uint256',
+          },
+        ],
+        'name': 'Transfer',
+        'type': 'event',
+      },
+      {
+        'inputs': [],
+        'name': 'OwnableSetter',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'string',
+            'name': '_name',
+            'type': 'string',
+          },
+          {
+            'internalType': 'string',
+            'name': '_imageUrlId',
+            'type': 'string',
+          },
+          {
+            'internalType': 'uint16',
+            'name': '_collectionId',
+            'type': 'uint16',
+          },
+        ],
+        'name': '_createCard',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'address',
+            'name': '_to',
+            'type': 'address',
+          },
+          {
+            'internalType': 'uint256',
+            'name': '_globalCardId',
+            'type': 'uint256',
+          },
+        ],
+        'name': 'assignCard',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'uint256',
+            'name': '',
+            'type': 'uint256',
+          },
+        ],
+        'name': 'cards',
+        'outputs': [
+          {
+            'components': [
+              {
+                'internalType': 'string',
+                'name': 'nom',
+                'type': 'string',
+              },
+              {
+                'internalType': 'uint256',
+                'name': 'id',
+                'type': 'uint256',
+              },
+              {
+                'internalType': 'string',
+                'name': 'imageUrl',
+                'type': 'string',
+              },
+              {
+                'internalType': 'uint32',
+                'name': 'prix',
+                'type': 'uint32',
+              },
+              {
+                'internalType': 'bool',
+                'name': 'dispo',
+                'type': 'bool',
+              },
+            ],
+            'internalType': 'struct CardInstance.Card',
+            'name': 'cardType',
+            'type': 'tuple',
+          },
+          {
+            'internalType': 'uint256',
+            'name': 'globalId',
+            'type': 'uint256',
+          },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'string',
+            'name': 'name',
+            'type': 'string',
+          },
+          {
+            'internalType': 'uint256',
+            'name': 'cardCount',
+            'type': 'uint256',
+          },
+        ],
+        'name': 'createCollection',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'uint256',
+            'name': '_cardId',
+            'type': 'uint256',
+          },
+        ],
+        'name': 'getCardDetails',
+        'outputs': [
+          {
+            'internalType': 'address',
+            'name': '',
+            'type': 'address',
+          },
+          {
+            'internalType': 'uint256',
+            'name': '',
+            'type': 'uint256',
+          },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'address',
+            'name': '_owner',
+            'type': 'address',
+          },
+        ],
+        'name': 'getCardsByOwner',
+        'outputs': [
+          {
+            'internalType': 'uint256[]',
+            'name': '',
+            'type': 'uint256[]',
+          },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'uint16',
+            'name': '_collectionId',
+            'type': 'uint16',
+          },
+          {
+            'internalType': 'uint256',
+            'name': '_amountOfCards',
+            'type': 'uint256',
+          },
+          {
+            'internalType': 'address',
+            'name': '_to',
+            'type': 'address',
+          },
+        ],
+        'name': 'openBooster',
+        'outputs': [],
+        'stateMutability': 'payable',
+        'type': 'function',
+      },
+      {
+        'inputs': [],
+        'name': 'openBoosterFee',
+        'outputs': [
+          {
+            'internalType': 'uint256',
+            'name': '',
+            'type': 'uint256',
+          },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+      },
+      {
+        'inputs': [],
+        'name': 'owner',
+        'outputs': [
+          {
+            'internalType': 'address',
+            'name': '',
+            'type': 'address',
+          },
+        ],
+        'stateMutability': 'view',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'uint256',
+            'name': '_fee',
+            'type': 'uint256',
+          },
+        ],
+        'name': 'setOpeningBoosterFee',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+      {
+        'inputs': [
+          {
+            'internalType': 'address',
+            'name': 'newOwner',
+            'type': 'address',
+          },
+        ],
+        'name': 'transferOwnership',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+      {
+        'inputs': [],
+        'name': 'withdraw',
+        'outputs': [],
+        'stateMutability': 'nonpayable',
+        'type': 'function',
+      },
+    ]
+    const MainAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    cards = new web3.eth.Contract(abi_main, MainAddr);
+
+    var accountInterval = setInterval(function() {
+      // Check if account has changed
+      if (web3.eth.accounts[0] !== userAccount) {
+        userAccount = web3.eth.accounts[1];
+        // Call a function to update the UI with the new account
+        getCardsByOwner(userAccount)
+          .then(displayCards);
+      }
+    }, 100);
+
+    // Start here
+  }
+
+  function displayCards(ids) {
+    $("#cards").empty();
+    for (id of ids) {
+      // Look up zombie details from our contract. Returns a `zombie` object
+      getCardDetails(id)
+        .then(function(cards) {
+          // Using ES6's "template literals" to inject variables into the HTML.
+          // Append each one to our #zombies div
+          $("#cards").append(`<div class="card">
+              <ul>
+                <li>Proprietaire: ${cards.owner}</li>
+                <li>PRIX: ${cards.price}</li>
+              </ul>
+            </div>`);
+        });
+    }
+  }
+
+
+  function getCardsByOwner(id) {
+    return cards.methods.getCardsByOwner(id).call()
+  }
+
+
+
+  window.addEventListener('load', function() {
+
+    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+    if (typeof web3 !== 'undefined') {
+      // Use Mist/MetaMask's provider
+      web3js = new Web3(web3.currentProvider);
+    } else {
+      // Handle the case where the user doesn't have MetaMask installed
+      // Probably show them a message prompting them to install MetaMask
+    }
+
+    // Now you can start your app & access web3 freely:
+    startApp()
+
+  })
+</script>
+</body>
 </html>

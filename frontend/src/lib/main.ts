@@ -3,7 +3,7 @@ import * as ethereum from './ethereum'
 import Main from '@/abis/Main.json'
 
 export const correctChain = () => {
-  return 31337; // ID de la chaîne HardHat
+  return 31337;
 }
 
 // Adresse du contrat Main (à mettre à jour dynamiquement après déploiement)
@@ -33,23 +33,15 @@ export const init = async (details: ethereum.Details) => {
 
   // Connecter le signer si disponible
   const contract_ = signer ? contract.connect(signer) : contract;
+  console.log(contract_.functions);
   return contract_ as any;
 }
 
-export const getCardsByOwner = async (details: ethereum.Details, ownerAddress: string): Promise<number[]> => {
-  const contract = await init(details);
-  if (!contract) {
-    console.error("Contract not initialized");
-    return [];
-  }
-
-  try {
-    return await contract.getCardsByOwner(ownerAddress);
-  } catch (error) {
-    console.error('Error fetching cards by owner:', error);
-    return [];
-  }
-}
+export const getCardsByOwner = async (walletDetails: any, ownerAddress: string) => {
+  const provider = new ethers.providers.Web3Provider(walletDetails.provider);
+  const contract = new ethers.Contract(mainAddr, Main, provider.getSigner());
+  return await contract.getCardsByOwner(ownerAddress);
+};
 
 export const getCardDetails = async (details: ethereum.Details, cardId: number): Promise<{ owner: string, price: number } | null> => {
   const contract = await init(details);
