@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <title>CryptoZombies front-end</title>
   <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script language="javascript" type="text/javascript" src="web3.js"></script>
+  <script language="javascript" type="text/javascript" src="web3.min.js"></script>
 </head>
 <body>
 <div id="txStatus"></div>
 <div id="zombies"></div>
 
 <script>
-  import { getCardDetails } from './src/lib/main.js'
-  import Web3 from 'web3'
+  const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
   var cards;
   var userAccount;
+  
 
-  function startApp() {
+  async function startApp() {
     const abi_main = [
       {
         'inputs': [
@@ -379,18 +379,26 @@
         'type': 'function',
       },
     ]
-    const MainAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-    cards = new web3.eth.Contract(abi_main, MainAddr);
+    // const CardInstanceAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
+    await web3.eth.getAccounts().then(function(accounts) {
+      userAccount = accounts[0];
+    });
+    main = new web3js.eth.Contract(abi_main, MainAddr);
 
-    var accountInterval = setInterval(function() {
-      // Check if account has changed
-      if (web3.eth.accounts[0] !== userAccount) {
-        userAccount = web3.eth.accounts[1];
+    var accountInterval = setInterval(async function() {
+      var currAccount;
+      await web3.eth.getAccounts().then(function(accounts) {
+        currAccount = accounts[0];
+      });
+      // if (currAccount !== userAccount) {
+      if (true) {
+        userAccount = currAccount;
         // Call a function to update the UI with the new account
-        getCardsByOwner(userAccount)
-          .then(displayCards);
+        getCardsByOwner(userAccount).then(console.log)
+          // .then(displayCards);
       }
-    }, 100);
+    }, 1000);
 
     // Start here
   }
@@ -401,6 +409,7 @@
       // Look up zombie details from our contract. Returns a `zombie` object
       getCardDetails(id)
         .then(function(cards) {
+          console.log(id);
           // Using ES6's "template literals" to inject variables into the HTML.
           // Append each one to our #zombies div
           $("#cards").append(`<div class="card">
@@ -415,13 +424,12 @@
 
 
   function getCardsByOwner(id) {
-    return cards.methods.getCardsByOwner(id).call()
+    return main.methods.getCardsByOwner(id).call()
   }
 
 
 
   window.addEventListener('load', function() {
-
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof web3 !== 'undefined') {
       // Use Mist/MetaMask's provider
@@ -429,6 +437,7 @@
     } else {
       // Handle the case where the user doesn't have MetaMask installed
       // Probably show them a message prompting them to install MetaMask
+      console.log("Please install metamask");
     }
 
     // Now you can start your app & access web3 freely:
