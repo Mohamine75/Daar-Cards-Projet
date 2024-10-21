@@ -70,9 +70,11 @@ contract Main is Ownable {
         collectionTest();
         _createCardTest("Pikachu", "", 0);
         _createCardTest("Bulbizarre", "", 0);
+        _createCardTest("Salameche", "", 0);
         emit Debug("assign passe",msg.sender);
         assignCard(msg.sender, 0); // Commente cette ligne pour tester
         assignCard(msg.sender, 1); // Commente cette ligne pour tester
+        assignCard(msg.sender, 2); // Commente cette ligne pour tester
     }
     /*constructor(address _cardInstanceAddress) {
         _cardInstanceAddress = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
@@ -103,7 +105,7 @@ contract Main is Ownable {
     function assignCard(address _to, uint _globalCardId) public onlyOwner {
         //CardInstance.cardToOwner[_globalCardId] = _to;
         cardInstance.assign(_to, _globalCardId);
-        //cardInstance.incrementOwnerCardCount(_to);
+        
         /** DONE : Appeler un événement (comme Transfer) */
         emit Transfer(msg.sender,_to,_globalCardId);
     }
@@ -113,6 +115,7 @@ contract Main is Ownable {
         Collection tmp = collections[_collectionId];
         uint cardIdInCollection = tmp.getCurrentCardCount();
         tmp.addCardToCollection(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
+        totalCardCount = totalCardCount.add(1);
         emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
     }
     function _createCardTest(string memory _name, string memory _imageUrlId, uint16 _collectionId) internal onlyOwner { // remettre external
@@ -120,6 +123,7 @@ contract Main is Ownable {
         Collection tmp = collections[_collectionId];
         uint cardIdInCollection = tmp.getCurrentCardCount();
         tmp.addCardToCollection(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
+        totalCardCount = totalCardCount.add(1);
         emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
     }
 
@@ -166,6 +170,7 @@ contract Main is Ownable {
             }
         }
 
+        // require(ownedCardIds[1] > 0);
         return ownedCardIds; // Retourne le tableau des IDs des cartes
     }
 

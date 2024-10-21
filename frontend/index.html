@@ -395,8 +395,9 @@
       if (true) {
         userAccount = currAccount;
         // Call a function to update the UI with the new account
-        getCardsByOwner(userAccount).then(console.log)
-          // .then(displayCards);
+        var tmp = await getCardsByOwner(userAccount);
+        console.log(tmp);
+        // .then(displayCards);
       }
     }, 1000);
 
