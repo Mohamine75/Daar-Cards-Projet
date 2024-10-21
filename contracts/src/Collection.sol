@@ -25,14 +25,14 @@ contract Collection {
     return currentCardCount;
   }
 
-    function addCardToCollection(CardInstance.Card memory _card) public {
-        require(currentCardCount < cardCount, "Collection is full"); // Vérifie que la collection n'est pas pleine
-        collectionCards.push(_card); // Ajoute la carte à la fin du tableau
-        currentCardCount = currentCardCount.add(1);
-    }
+  function addCardToCollection(CardInstance.Card memory _card) public {
+      require(currentCardCount < cardCount, "Collection is full"); // Vérifie que la collection n'est pas pleine
+      collectionCards.push(_card); // Ajoute la carte à la fin du tableau
+      currentCardCount = currentCardCount.add(1);
+  }
 
-    function getCard(uint _id) public view returns (CardInstance.Card memory) {
-        require(_id < currentCardCount, "Card ID is out of bounds"); // Vérifie que l'ID de la carte est valide
-        return collectionCards[_id];
-    }
+  function getCard(uint _id) public view returns (CardInstance.Card memory) {
+      require(_id < currentCardCount, "Card ID is out of bounds"); // Vérifie que l'ID de la carte est valide
+      return collectionCards[_id];
+  }
 }

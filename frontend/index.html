@@ -8,7 +8,7 @@
 </head>
 <body>
 <div id="txStatus"></div>
-<div id="zombies"></div>
+<div id="cards"></div>
 
 <script>
   const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
@@ -19,368 +19,378 @@
 
   async function startApp() {
     const abi_main = [
-      {
-        'inputs': [
-          {
-            'internalType': 'address',
-            'name': '_cardInstanceAddress',
-            'type': 'address',
-          },
-        ],
-        'stateMutability': 'nonpayable',
-        'type': 'constructor',
-      },
-      {
-        'anonymous': false,
-        'inputs': [
-          {
-            'indexed': false,
-            'internalType': 'string',
-            'name': 'message',
-            'type': 'string',
-          },
-          {
-            'indexed': false,
-            'internalType': 'address',
-            'name': 'owner',
-            'type': 'address',
-          },
-        ],
-        'name': 'Debug',
-        'type': 'event',
-      },
-      {
-        'anonymous': false,
-        'inputs': [
-          {
-            'indexed': false,
-            'internalType': 'string',
-            'name': '_name',
-            'type': 'string',
-          },
-          {
-            'indexed': false,
-            'internalType': 'string',
-            'name': '_imageUrlId',
-            'type': 'string',
-          },
-          {
-            'indexed': false,
-            'internalType': 'uint16',
-            'name': '_collectionId',
-            'type': 'uint16',
-          },
-          {
-            'indexed': false,
-            'internalType': 'uint256',
-            'name': 'cardId',
-            'type': 'uint256',
-          },
-          {
-            'indexed': false,
-            'internalType': 'uint256',
-            'name': 'prix',
-            'type': 'uint256',
-          },
-          {
-            'indexed': false,
-            'internalType': 'bool',
-            'name': 'dispo',
-            'type': 'bool',
-          },
-        ],
-        'name': 'NewCard',
-        'type': 'event',
-      },
-      {
-        'anonymous': false,
-        'inputs': [
-          {
-            'indexed': true,
-            'internalType': 'address',
-            'name': 'previousOwner',
-            'type': 'address',
-          },
-          {
-            'indexed': true,
-            'internalType': 'address',
-            'name': 'newOwner',
-            'type': 'address',
-          },
-        ],
-        'name': 'OwnershipTransferred',
-        'type': 'event',
-      },
-      {
-        'anonymous': false,
-        'inputs': [
-          {
-            'indexed': true,
-            'internalType': 'address',
-            'name': '_from',
-            'type': 'address',
-          },
-          {
-            'indexed': true,
-            'internalType': 'address',
-            'name': '_to',
-            'type': 'address',
-          },
-          {
-            'indexed': false,
-            'internalType': 'uint256',
-            'name': '_tokenId',
-            'type': 'uint256',
-          },
-        ],
-        'name': 'Transfer',
-        'type': 'event',
-      },
-      {
-        'inputs': [],
-        'name': 'OwnableSetter',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'string',
-            'name': '_name',
-            'type': 'string',
-          },
-          {
-            'internalType': 'string',
-            'name': '_imageUrlId',
-            'type': 'string',
-          },
-          {
-            'internalType': 'uint16',
-            'name': '_collectionId',
-            'type': 'uint16',
-          },
-        ],
-        'name': '_createCard',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'address',
-            'name': '_to',
-            'type': 'address',
-          },
-          {
-            'internalType': 'uint256',
-            'name': '_globalCardId',
-            'type': 'uint256',
-          },
-        ],
-        'name': 'assignCard',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'uint256',
-            'name': '',
-            'type': 'uint256',
-          },
-        ],
-        'name': 'cards',
-        'outputs': [
-          {
-            'components': [
-              {
-                'internalType': 'string',
-                'name': 'nom',
-                'type': 'string',
-              },
-              {
-                'internalType': 'uint256',
-                'name': 'id',
-                'type': 'uint256',
-              },
-              {
-                'internalType': 'string',
-                'name': 'imageUrl',
-                'type': 'string',
-              },
-              {
-                'internalType': 'uint32',
-                'name': 'prix',
-                'type': 'uint32',
-              },
-              {
-                'internalType': 'bool',
-                'name': 'dispo',
-                'type': 'bool',
-              },
-            ],
-            'internalType': 'struct CardInstance.Card',
-            'name': 'cardType',
-            'type': 'tuple',
-          },
-          {
-            'internalType': 'uint256',
-            'name': 'globalId',
-            'type': 'uint256',
-          },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'string',
-            'name': 'name',
-            'type': 'string',
-          },
-          {
-            'internalType': 'uint256',
-            'name': 'cardCount',
-            'type': 'uint256',
-          },
-        ],
-        'name': 'createCollection',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'uint256',
-            'name': '_cardId',
-            'type': 'uint256',
-          },
-        ],
-        'name': 'getCardDetails',
-        'outputs': [
-          {
-            'internalType': 'address',
-            'name': '',
-            'type': 'address',
-          },
-          {
-            'internalType': 'uint256',
-            'name': '',
-            'type': 'uint256',
-          },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'address',
-            'name': '_owner',
-            'type': 'address',
-          },
-        ],
-        'name': 'getCardsByOwner',
-        'outputs': [
-          {
-            'internalType': 'uint256[]',
-            'name': '',
-            'type': 'uint256[]',
-          },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'uint16',
-            'name': '_collectionId',
-            'type': 'uint16',
-          },
-          {
-            'internalType': 'uint256',
-            'name': '_amountOfCards',
-            'type': 'uint256',
-          },
-          {
-            'internalType': 'address',
-            'name': '_to',
-            'type': 'address',
-          },
-        ],
-        'name': 'openBooster',
-        'outputs': [],
-        'stateMutability': 'payable',
-        'type': 'function',
-      },
-      {
-        'inputs': [],
-        'name': 'openBoosterFee',
-        'outputs': [
-          {
-            'internalType': 'uint256',
-            'name': '',
-            'type': 'uint256',
-          },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-      },
-      {
-        'inputs': [],
-        'name': 'owner',
-        'outputs': [
-          {
-            'internalType': 'address',
-            'name': '',
-            'type': 'address',
-          },
-        ],
-        'stateMutability': 'view',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'uint256',
-            'name': '_fee',
-            'type': 'uint256',
-          },
-        ],
-        'name': 'setOpeningBoosterFee',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-      {
-        'inputs': [
-          {
-            'internalType': 'address',
-            'name': 'newOwner',
-            'type': 'address',
-          },
-        ],
-        'name': 'transferOwnership',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-      {
-        'inputs': [],
-        'name': 'withdraw',
-        'outputs': [],
-        'stateMutability': 'nonpayable',
-        'type': 'function',
-      },
-    ]
-    // const CardInstanceAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_cardInstanceAddress",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "Debug",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "_imageUrlId",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint16",
+				"name": "_collectionId",
+				"type": "uint16"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "cardId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "prix",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "dispo",
+				"type": "bool"
+			}
+		],
+		"name": "NewCard",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "OwnableSetter",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_imageUrlId",
+				"type": "string"
+			},
+			{
+				"internalType": "uint16",
+				"name": "_collectionId",
+				"type": "uint16"
+			}
+		],
+		"name": "_createCard",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_globalCardId",
+				"type": "uint256"
+			}
+		],
+		"name": "assignCard",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "cards",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "nom",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "imageUrl",
+						"type": "string"
+					},
+					{
+						"internalType": "uint32",
+						"name": "prix",
+						"type": "uint32"
+					},
+					{
+						"internalType": "bool",
+						"name": "dispo",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct CardInstance.Card",
+				"name": "cardType",
+				"type": "tuple"
+			},
+			{
+				"internalType": "uint256",
+				"name": "globalId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "cardCount",
+				"type": "uint256"
+			}
+		],
+		"name": "createCollection",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_cardId",
+				"type": "uint256"
+			}
+		],
+		"name": "getCardDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "nom",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint32",
+				"name": "prix",
+				"type": "uint32"
+			},
+			{
+				"internalType": "bool",
+				"name": "dispo",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
+		"name": "getCardsByOwner",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint16",
+				"name": "_collectionId",
+				"type": "uint16"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amountOfCards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "openBooster",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "openBoosterFee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_fee",
+				"type": "uint256"
+			}
+		],
+		"name": "setOpeningBoosterFee",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]    
     const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
+    var isSet = false;
     await web3.eth.getAccounts().then(function(accounts) {
       userAccount = accounts[0];
     });
@@ -391,13 +401,12 @@
       await web3.eth.getAccounts().then(function(accounts) {
         currAccount = accounts[0];
       });
-      // if (currAccount !== userAccount) {
-      if (true) {
+      // TODO : Vérifier que ça se met à jour quand on change de compte avec metamask? pas très important
+      // TODO : on refera un getCardsByOwner (mais ailleurs) lors de certains événements, voir https://cryptozombies.io/fr/lesson/6/chapter/9
+      if (currAccount !== userAccount || !isSet) {
         userAccount = currAccount;
-        // Call a function to update the UI with the new account
-        var tmp = await getCardsByOwner(userAccount);
-        console.log(tmp);
-        // .then(displayCards);
+        isSet = true;
+        await getCardsByOwner(userAccount).then(displayCards);
       }
     }, 1000);
 
@@ -407,16 +416,17 @@
   function displayCards(ids) {
     $("#cards").empty();
     for (id of ids) {
-      // Look up zombie details from our contract. Returns a `zombie` object
       getCardDetails(id)
-        .then(function(cards) {
-          console.log(id);
-          // Using ES6's "template literals" to inject variables into the HTML.
-          // Append each one to our #zombies div
+        .then(function(cards) { 
+          console.log(cards);
+
+          // TODO : s'occuper de ça (ici, je vais appelé l'API pokemon (je vais devoir récupéré la collection de ma carte))
           $("#cards").append(`<div class="card">
               <ul>
-                <li>Proprietaire: ${cards.owner}</li>
-                <li>PRIX: ${cards.price}</li>
+                <li>Nom : ${cards.nom}</li>
+                <li>Id (dans la collection): ${cards.id}</li>
+                <li>Prix : ${cards.prix}</li>
+                <li>Disponibilité : ${cards.dispo}</li>
               </ul>
             </div>`);
         });
@@ -426,6 +436,10 @@
 
   function getCardsByOwner(id) {
     return main.methods.getCardsByOwner(id).call()
+  }
+
+  function getCardDetails(id) {
+    return main.methods.getCardDetails(id).call()
   }
 
 

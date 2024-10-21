@@ -68,9 +68,9 @@ contract Main is Ownable {
 
         // Crée une collection et une carte de test lors du déploiement
         collectionTest();
-        _createCardTest("Pikachu", "", 0);
-        _createCardTest("Bulbizarre", "", 0);
-        _createCardTest("Salameche", "", 0);
+        _createCard("Pikachu", "", 0);
+        _createCard("Bulbizarre", "", 0);
+        _createCard("Salameche", "", 0);
         emit Debug("assign passe",msg.sender);
         assignCard(msg.sender, 0); // Commente cette ligne pour tester
         assignCard(msg.sender, 1); // Commente cette ligne pour tester
@@ -110,19 +110,13 @@ contract Main is Ownable {
         emit Transfer(msg.sender,_to,_globalCardId);
     }
 
-    function _createCard(string memory _name, string memory _imageUrlId, uint16 _collectionId) external onlyOwner { // remettre external
+    function _createCard(string memory _name, string memory _imageUrlId, uint16 _collectionId) internal onlyOwner { // remettre external
         // TODO :require(collections[_collectionId].collectionCards.length < collections[_collectionId].cardCount);
         Collection tmp = collections[_collectionId];
         uint cardIdInCollection = tmp.getCurrentCardCount();
-        tmp.addCardToCollection(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
-        totalCardCount = totalCardCount.add(1);
-        emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
-    }
-    function _createCardTest(string memory _name, string memory _imageUrlId, uint16 _collectionId) internal onlyOwner { // remettre external
-        // TODO :require(collections[_collectionId].collectionCards.length < collections[_collectionId].cardCount);
-        Collection tmp = collections[_collectionId];
-        uint cardIdInCollection = tmp.getCurrentCardCount();
-        tmp.addCardToCollection(CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false));
+        CardInstance.Card memory card = CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false);
+        tmp.addCardToCollection(card);
+        cards.push(CardInstance.CardInstanceStruct(card, totalCardCount));
         totalCardCount = totalCardCount.add(1);
         emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
     }
@@ -182,11 +176,15 @@ contract Main is Ownable {
         _;
     }
 
-    function getCardDetails(uint _cardId) public view returns(address,uint){
-         require(totalCardCount > _cardId);
-        address own = cardInstance.getCardOwner(_cardId);
-        //return (own,cards[_cardId].getPrix());
-        return (own,10);
+    function getCardDetails(uint _cardId) public view returns(string memory, uint, uint32, bool){
+        require(totalCardCount > _cardId);
+        // string nom;
+        // uint id;
+        // string imageUrl; /** On stocke juste un id, l'URL sera "calculé" */
+        // uint32 prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
+        // bool dispo;
+        CardInstance.Card memory tmp = cards[_cardId].cardType;
+        return (tmp.nom, tmp.id, tmp.prix, tmp.dispo);
     }
     // Le globalId de cardIstance c'est sa position dans Collection
 
