@@ -23,7 +23,7 @@ const deployer: DeployFunction = async hre => {
   const globalId = 1; // ID global pour l'exemple
 
   // Déployer CardInstance
-  const cardInstance = await CardInstance.deploy(cardType, globalId);
+  const cardInstance = await CardInstance.deploy();
   await cardInstance.deployed();
   console.log("CardInstance deployed to:", cardInstance.address);
 }

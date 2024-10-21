@@ -1,14 +1,12 @@
-import 'dotenv/config'
-import 'hardhat-deploy'
-import { HardhatUserConfig } from 'hardhat/config'
-import '@nomiclabs/hardhat-ethers'
-import '@nomiclabs/hardhat-waffle'
-import '@typechain/hardhat'
-import 'hardhat-gas-reporter'
-import 'hardhat-abi-exporter'
+import 'dotenv/config';
+import 'hardhat-deploy';
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-waffle';
+import '@typechain/hardhat';
+import 'hardhat-gas-reporter';
+import 'hardhat-abi-exporter';
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
 const config: HardhatUserConfig = {
   solidity: '0.8.20',
   paths: {
@@ -32,6 +30,25 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: '../typechain',
   },
-}
+  networks: {
+    localhost: {
+      url: 'http://127.0.0.1:8545',
+      gasPrice: 20000000000, // 20 Gwei (en wei)
+      gas: 6000000, // Gas limit
+    },
+    mainnet: {
+      url: process.env.MAINNET_RPC_URL || '',
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 30000000000, // 30 Gwei (en wei)
+      gas: 7000000, // Gas limit
+    },
+    rinkeby: {
+      url: process.env.RINKEBY_RPC_URL || '',
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: 20000000000, // 20 Gwei (en wei)
+      gas: 6000000, // Gas limit
+    },
+  },
+};
 
-export default config
+export default config;

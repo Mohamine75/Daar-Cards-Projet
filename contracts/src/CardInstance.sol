@@ -13,12 +13,9 @@ contract CardInstance is ERC721, Ownable {
         uint32 prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
         bool dispo;
     }
-    Card cardType;
-    uint globalId;
-
-    constructor(Card memory _cardType, uint _globalId) {
-        cardType = _cardType;
-        globalId = _globalId;
+    struct CardInstanceStruct {
+        Card cardType;
+        uint globalId;
     }
 
     mapping (address => uint) public ownerCardCount;
@@ -60,9 +57,9 @@ contract CardInstance is ERC721, Ownable {
         _transfer(owner, msg.sender, _tokenId);
     }
 
-    function getPrix() public view returns (uint32) {
-        return cardType.prix;
-    }
+    // function getPrix() public view returns (uint32) {
+    //     return cardType.prix;
+    // }
 
     // todo : FIX ces fonctions, elles sont facultatives, si elles posent problème, on les vire
     // function achat(uint256 _cardId) external payable {

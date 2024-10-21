@@ -18,7 +18,7 @@ contract Main is Ownable {
 
     // mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
     uint public openBoosterFee = 0.001 ether;
-    CardInstance[] public cards;
+    CardInstance.CardInstanceStruct[] public cards;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
     event NewCard(string _name, string _imageUrlId, uint16 _collectionId, uint cardId,uint prix,bool dispo);
@@ -34,7 +34,7 @@ contract Main is Ownable {
         collectionTest();
         _createCardTest("Pikachu", "", 0);
         emit Debug("assign passe",msg.sender);
-        //assignCard(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 0); // Commente cette ligne pour tester
+        assignCard(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 0); // Commente cette ligne pour tester
     }
     /*constructor(address _cardInstanceAddress) {
         _cardInstanceAddress = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
@@ -64,7 +64,7 @@ contract Main is Ownable {
 
     function assignCard(address _to, uint _globalCardId) internal /*onlyOwner*/ {
         //CardInstance.cardToOwner[_globalCardId] = _to;
-    cardInstance.assign(_to, _globalCardId);
+        cardInstance.assign(_to, _globalCardId);
         //cardInstance.incrementOwnerCardCount(_to);
         /** DONE : Appeler un événement (comme Transfer) */
         emit Transfer(msg.sender,_to,_globalCardId);
@@ -95,7 +95,7 @@ contract Main is Ownable {
             uint globalId = totalCardCount;
             totalCardCount = totalCardCount.add(1);
             // CardInstance card = new CardInstance(collections[_collectionId].collectioncards[cardIdInCollection], globalId,false,0);
-            CardInstance card = new CardInstance(collections[_collectionId].getCard(cardIdInCollection), globalId);
+            CardInstance.CardInstanceStruct memory card = CardInstance.CardInstanceStruct(collections[_collectionId].getCard(cardIdInCollection), globalId);
             cards.push(card);
             assignCard(_to, globalId);
         }
@@ -139,11 +139,11 @@ contract Main is Ownable {
         _;
     }
 
-    function getCardDetails(uint _cardId) public view returns(address,uint){
-        require(totalCardCount > _cardId);
-        return (cards[_cardId].owner(),cards[_cardId].getPrix());
+    // function getCardDetails(uint _cardId) public view returns(address,uint){
+    //     require(totalCardCount > _cardId);
+    //     return (cards[_cardId].owner(),cards[_cardId].getPrix());
 
-    }
+    // }
     // Le globalId de cardIstance c'est sa position dans Collection
 
 
