@@ -176,7 +176,7 @@ contract Main is Ownable {
         _;
     }
 
-    function getCardDetails(uint _cardId) public view returns(string memory, uint, uint32, bool){
+    function getCardDetails(uint _cardId) public view returns(string memory nom, uint id, uint32 prix, bool dispo){
         require(totalCardCount > _cardId);
         // string nom;
         // uint id;
