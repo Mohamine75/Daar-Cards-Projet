@@ -1,14 +1,22 @@
 /* Global settings */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    color: #333;
+
+html, body {
+    height: 100%; /* Assurer que le body prend toute la hauteur */
+    margin: 0; /* Retirer les marges par défaut */
 }
 
+
+body {
+    display: flex;
+    flex-direction: column; /* Organiser les éléments en colonne */
+    font-family: Arial, sans-serif;
+    padding: 0;
+    background-color: #3c3656; /* Fond sombre */
+    color: #e0e0e0; /* Texte clair */
+}
 /* Container for the main content */
 .container {
+    flex: 1; /* Prendre tout l'espace restant */
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -16,7 +24,7 @@ body {
 
 /* Header styles */
 header {
-    background-color: #343a40;
+    background-color: #6a0dad; /* Violet foncé */
     color: white;
     padding: 20px 0;
     text-align: center;
@@ -29,8 +37,10 @@ header h1 {
 
 /* Navigation menu */
 nav {
-    margin: 20px 0;
+    background-color: #441bec !important; /* Violet foncé pour la navbar */
+    padding: 10px; /* Ajoute du padding pour la navbar */
 }
+
 
 nav ul {
     list-style: none;
@@ -40,17 +50,22 @@ nav ul {
 }
 
 nav ul li {
-    margin: 0 15px;
+    margin: 0 20px; /* Espacement plus large entre les éléments de la nav */
 }
 
 nav ul li a {
     text-decoration: none;
-    color: #007bff;
+    color: #e0e0e0; /* Texte clair */
     font-weight: bold;
+    font-size: 1.2rem; /* Augmentation de la taille de la police pour les liens */
+    padding: 10px 15px; /* Ajout de padding pour rendre les boutons plus grands */
+    border-radius: 5px; /* Coins arrondis pour un effet esthétique */
+    transition: background-color 0.3s; /* Transition pour l'effet de survol */
 }
 
 nav ul li a:hover {
-    color: #0056b3;
+    background-color: rgba(255, 255, 255, 0.1); /* Légère couleur de fond au survol */
+    color: #d4a5ff; /* Violet plus clair au survol */
 }
 
 /* Main content section */
@@ -62,10 +77,10 @@ main {
 
 /* Article section styles */
 article {
-    background-color: white;
+    background-color: #1e1e1e; /* Fond sombre pour les articles */
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: calc(33.333% - 40px);
     margin-right: 20px;
     border-radius: 8px;
@@ -78,35 +93,68 @@ article:last-child {
 article h2 {
     margin-top: 0;
     font-size: 1.75rem;
-    color: #343a40;
+    color: #e0e0e0; /* Texte clair */
 }
 
 article p {
     line-height: 1.6;
-    color: #666;
+    color: #b0b0b0; /* Texte légèrement moins clair */
 }
 
 article a {
     display: inline-block;
     margin-top: 10px;
     text-decoration: none;
-    color: #007bff;
+    color: #441bec !important; /* Violet */
     font-weight: bold;
 }
 
 article a:hover {
-    color: #0056b3;
+    color: #d4a5ff; /* Violet plus clair au survol */
 }
 
 /* Footer styles */
 footer {
-    background-color: #343a40;
+    background-color: #441bec !important; /* Violet foncé */
     color: white;
     text-align: center;
-    padding: 20px 0;
+    padding: 10px 0; /* Padding pour le footer */
     margin-top: 20px;
 }
-
 footer p {
     margin: 0;
+    font-size: 0.9rem; /* Petite taille de police pour le footer */
+}
+
+/* Card styles */
+.card {
+    width: 250px; /* Largeur de la carte */
+    height: 350px; /* Hauteur de la carte */
+    margin: 20px; /* Espace autour des cartes */
+    border-radius: 10px; /* Coins arrondis pour un effet esthétique */
+    transition: transform 0.2s; /* Transition pour l'effet de hover */
+    background-color: #ffffff; /* Fond blanc pour les cartes */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre de la carte */
+}
+
+.card:hover {
+    transform: scale(1.05); /* Agrandir légèrement la carte au survol */
+}
+
+.card-image {
+    height: 60%; /* Ajuster l'image à 60% de la hauteur de la carte */
+    overflow: hidden; /* Cacher les débordements */
+    border-top-left-radius: 10px; /* Coins arrondis pour l'image */
+    border-top-right-radius: 10px; /* Coins arrondis pour l'image */
+}
+
+.card-content {
+    height: 40%; /* Ajuster le contenu à 40% de la hauteur de la carte */
+    padding: 10px; /* Espace interne pour le contenu */
+}
+footer {
+    background-color: #6a0dad; /* Violet foncé */
+    color: white;
+    text-align: center;
+    padding: 5px 0; /* Réduction du padding pour un footer plus petit */
 }

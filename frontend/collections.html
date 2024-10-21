@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Collections - Pokémon TCG</title>
+  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="index.html">
+      <img src="src/assets/logo_TCG.png" alt="Pokemon TCG Logo" style="width: 100px; height: 100px; object-fit: contain;" />
+    </a>
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="index.html">Home</a>
+      <a class="navbar-item" href="#">Documentation</a>
+      <a class="navbar-item" href="collections.html">Collections</a>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+          <a class="button is-primary"><strong>Sign up</strong></a>
+          <a class="button is-light">Log in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Section des collections -->
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-centered">Collections</h1>
+    <div class="columns is-multiline" id="collections">
+      <!-- Les collections seront affichées ici -->
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      <strong>Pokémon TCG</strong> by <a href="https://github.com/Mohamine75/Daar-Cards-Projet">Amine Z & Thomas S</a>. Powered by Ethereum and Blockchain.
+    </p>
+  </div>
+</footer>
+
+<script>
+  const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+  const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
+  let main;
+
+  async function startApp() {
+    const abi_main = [/* ... Votre ABI ici ... */];
+    main = new web3.eth.Contract(abi_main, MainAddr);
+
+    // Récupérer toutes les collections et les afficher
+    await displayCollections();
+  }
+
+  async function displayCollections() {
+    // Supposons que vous ayez une méthode `getCollections` pour obtenir toutes les collections
+    const collections = await main.methods.getCollections().call(); // Implémentez cette méthode dans votre contrat
+    const collectionsDiv = $("#collections");
+    collectionsDiv.empty();
+
+    collections.forEach(async (collectionId) => {
+      const collectionDetails = await main.methods.getCollectionDetails(collectionId).call(); // Implémentez cette méthode
+      const cardsInCollection = await main.methods.getCardsInCollection(collectionId).call(); // Implémentez cette méthode
+
+      collectionsDiv.append(`
+        <div class="column is-one-third">
+          <div class="card">
+            <div class="card-content">
+              <h2 class="title">${collectionDetails.name}</h2>
+              <p class="subtitle">ID: ${collectionId}</p>
+              <h3>Cards:</h3>
+              <ul>
+                ${cardsInCollection.map(card => `<li>${card.nom} - ID: ${card.id}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `);
+    });
+  }
+
+  window.addEventListener('load', function () {
+    if (typeof web3 !== 'undefined') {
+      web3js = new Web3(web3.currentProvider);
+    } else {
+      console.log("Please install metamask");
+    }
+
+    startApp();
+  });
+</script>
+</body>
+</html>
