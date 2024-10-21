@@ -7,10 +7,46 @@ import "./safemath.sol";
 import "./erc721.sol";
 import "./CardInstance.sol";
 
+interface ICardInstance {
+
+    struct Card {
+        string nom;
+        uint id;
+        string imageUrl;
+        uint32 prix;
+        bool dispo;
+    }
+
+    struct CardInstanceStruct {
+        Card cardType;
+        uint globalId;
+    }
+
+    function ownerOf(uint256 _tokenId) external view returns (address _owner);
+
+    function balanceOf(address _owner) external view returns (uint256 _balance);
+
+    function transfer(address _to, uint256 _tokenId) external;
+
+    function approve(address _to, uint256 _tokenId) external;
+
+    function takeOwnership(uint256 _tokenId) external;
+
+    function assign(address _to, uint _globalCardId) external;
+
+    function incrementOwnerCardCount(address _to) external;
+
+    function getOwnerCardCount(address _to) external view returns (uint);
+
+    function getCardOwner(uint _cardId) external view returns (address);
+
+    function setCardOwner(uint _cardId, address _owner) external;
+}
+
 contract Main is Ownable {
     using SafeMath for uint256;
     event Debug(string message, address owner);
-    CardInstance internal cardInstance;
+    ICardInstance internal cardInstance;
     uint private count; /** nombre de collections */
     uint private totalCardCount;
     mapping(uint => Collection) private collections;
@@ -28,7 +64,7 @@ contract Main is Ownable {
         owner = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
         count = 0;
         totalCardCount = 0;
-        cardInstance = CardInstance(_cardInstanceAddress);
+        cardInstance = ICardInstance(_cardInstanceAddress);
 
         // Crée une collection et une carte de test lors du déploiement
         collectionTest();
