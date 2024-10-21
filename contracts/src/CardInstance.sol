@@ -85,6 +85,7 @@ contract CardInstance is ERC721, Ownable {
 
   function assign(address _to, uint _globalCardId) external /*onlyOwner*/ {
     cardToOwner[_globalCardId] = _to;
+    ownerCardCount[_to] = ownerCardCount[_to].add(1);
   }
 
   function incrementOwnerCardCount(address _to) public onlyOwner {

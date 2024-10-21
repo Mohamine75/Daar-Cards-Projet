@@ -69,8 +69,10 @@ contract Main is Ownable {
         // Crée une collection et une carte de test lors du déploiement
         collectionTest();
         _createCardTest("Pikachu", "", 0);
+        _createCardTest("Bulbizarre", "", 0);
         emit Debug("assign passe",msg.sender);
         assignCard(msg.sender, 0); // Commente cette ligne pour tester
+        assignCard(msg.sender, 1); // Commente cette ligne pour tester
     }
     /*constructor(address _cardInstanceAddress) {
         _cardInstanceAddress = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
