@@ -18,13 +18,13 @@ const Profil = ({ wallet }: { wallet: any }) => {
         setOwnedCardIds(cardIds);
 
         // Récupère les détails pour chaque carte
-        const cardDetailsPromises = cardIds.map(id => main.getCardDetails(wallet.details, id));
-        const cardDetails = await Promise.all(cardDetailsPromises);
+       // const cardDetailsPromises = cardIds.map(id => main.getCardDetails(wallet.details, id));
+        //const cardDetails = await Promise.all(cardDetailsPromises);
         console.log("ok2");
 
         // Filtrer les cartes null et assigner le type explicitement
-        const filteredCards = cardDetails.filter(card => card !== null) as Array<{ owner: string; price: number }>;
-        setCards(filteredCards);
+        //const filteredCards = cardDetails.filter(card => card !== null) as Array<{ owner: string; price: number }>;
+        //setCards(filteredCards);
         console.log("ok3");
 
       } catch (error) {
@@ -34,7 +34,7 @@ const Profil = ({ wallet }: { wallet: any }) => {
 
 
 
-    //fetchOwnedCards();
+    fetchOwnedCards();
 
     console.log("ok4");
 

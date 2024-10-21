@@ -175,11 +175,12 @@ contract Main is Ownable {
         _;
     }
 
-    // function getCardDetails(uint _cardId) public view returns(address,uint){
-    //     require(totalCardCount > _cardId);
-    //     return (cards[_cardId].owner(),cards[_cardId].getPrix());
-
-    // }
+    function getCardDetails(uint _cardId) public view returns(address,uint){
+         require(totalCardCount > _cardId);
+        address own = cardInstance.getCardOwner(_cardId);
+        //return (own,cards[_cardId].getPrix());
+        return (own,10);
+    }
     // Le globalId de cardIstance c'est sa position dans Collection
 
 
