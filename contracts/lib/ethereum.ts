@@ -23,10 +23,14 @@ const metamask = async (requestAccounts = true): Promise<Details | null> => {
     const account = accounts.length ? accounts[0] : undefined
     const signer = account ? provider.getSigner() : undefined
     const name = await ens.lookup(account ?? '')
+    provider.getBlockNumber().then((blockNumber) => {
+      console.log("Current Block Number:", blockNumber);
+    });
     return { provider, signer, account, name }
   }
   return null
 }
+
 
 const silent = async (): Promise<Details> => {
   const ethereum = (window as any).ethereum

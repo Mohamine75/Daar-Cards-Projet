@@ -1,7 +1,6 @@
-import { ethers } from 'ethers';
-import * as ethereum from './ethereum';
-import { contracts } from '@/contracts.json';
-import Main from '@/abis/Main.json';
+import { ethers } from 'ethers'
+import * as ethereum from './ethereum'
+import Main from '@/abis/Main.json'
 
 export const correctChain = () => {
   return 31337; // ID de la chaîne HardHat
@@ -45,8 +44,7 @@ export const getCardsByOwner = async (details: ethereum.Details, ownerAddress: s
   }
 
   try {
-    const cardIds = await contract.getCardsByOwner(ownerAddress);
-    return cardIds;
+    return await contract.getCardsByOwner(ownerAddress);
   } catch (error) {
     console.error('Error fetching cards by owner:', error);
     return [];

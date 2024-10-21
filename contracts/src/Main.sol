@@ -98,7 +98,7 @@ contract Main is Ownable {
         count = count.add(1);
     }
 
-    function assignCard(address _to, uint _globalCardId) internal /*onlyOwner*/ {
+    function assignCard(address _to, uint _globalCardId) public onlyOwner {
         //CardInstance.cardToOwner[_globalCardId] = _to;
         cardInstance.assign(_to, _globalCardId);
         //cardInstance.incrementOwnerCardCount(_to);

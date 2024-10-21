@@ -13,12 +13,11 @@ const Profil = ({ wallet }: { wallet: any }) => {
 
       try {
         const cardIds = await main.getCardsByOwner(wallet.details, wallet.details.account);
-        console.log(cardIds);
+        //console.log(cardIds);
         console.log("ok1");
-        setOwnedCardIds(cardIds);
+        //setOwnedCardIds(cardIds);
 
-        // Récupère les détails pour chaque carte
-       // const cardDetailsPromises = cardIds.map(id => main.getCardDetails(wallet.details, id));
+       //const cardDetailsPromises = cardIds.map(id => main.getCardDetails(wallet.details, id));
         //const cardDetails = await Promise.all(cardDetailsPromises);
         console.log("ok2");
 

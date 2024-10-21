@@ -9,14 +9,10 @@ const deployer: DeployFunction = async hre => {
 
   const { deployer } = await hre.getNamedAccounts();
 
-  // Déployer Main
   const main = await Main.deploy(cardInstance.address);
   await main.deployed();
   console.log("Main deployed to:", main.address);
 
-  const globalId = 1; // ID global pour l'exemple
-
-  // Déployer CardInstance
 
   console.log("CardInstance deployed to:", cardInstance.address);
 }
