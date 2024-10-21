@@ -18,6 +18,8 @@ contract CardInstance is ERC721, Ownable {
         uint globalId;
     }
 
+    //constructor (address  owner) Ownable(owner){}
+
     mapping (address => uint) public ownerCardCount;
     mapping (uint => address) public cardToOwner;
 
@@ -81,8 +83,8 @@ contract CardInstance is ERC721, Ownable {
 //     return Main.cards[_cardId].cardType; // Retourne les détails de la carte
 //   }
 
-  function assign(address _to, uint _globalCardId) public onlyOwner {
-    cardToOwner[_globalCardId] = _to;
+  function assign(address _to, uint _globalCardId) public /*onlyOwner*/ {
+    //cardToOwner[_globalCardId] = _to;
   }
 
   function incrementOwnerCardCount(address _to) public onlyOwner {
