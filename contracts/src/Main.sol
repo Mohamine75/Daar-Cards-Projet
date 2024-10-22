@@ -65,13 +65,13 @@ contract Main is Ownable {
         count = 0;
         totalCardCount = 0;
         cardInstance = ICardInstance(_cardInstanceAddress);
+        collectionTest();
     }
 
     function collectionTest() internal onlyOwner {
-        collections[count] = new Collection("test1", 20, 0); /** On assigne à la collection un id unique */
+        collections[count] = new Collection("test1", 20, 0); /* On assigne à la collection un id unique */
         count = count.add(1);
     }
-
 
 
     function createCollection(string calldata name, uint cardCount) external onlyOwner {
@@ -87,7 +87,7 @@ contract Main is Ownable {
         emit Transfer(msg.sender,_to,_globalCardId);
     }
 
-    function createCard(string memory _name, string memory _imageUrl, uint16 _collectionId) external onlyOwner {
+    function createCard(string memory _name, string memory _imageUrl, uint16 _collectionId) public onlyOwner {
         // TODO require(collections[_collectionId].collectionCards.length < collections[_collectionId].cardCount);
         Collection tmp = collections[_collectionId];
         uint cardIdInCollection = tmp.getCurrentCardCount();
@@ -98,17 +98,32 @@ contract Main is Ownable {
         emit NewCard(_name, _imageUrl, _collectionId, cardIdInCollection,0,false);
     }
 
-    function openBooster(uint16 _collectionId, uint _amountOfCards, address _to) public payable { // TODO : remettre external
-        /** DONE : rentre ça payant */
-        require(msg.value == openBoosterFee);
+    function openBooster(uint16 _collectionId, uint _amountOfCards, address _to) public payable {
+        require(msg.value == openBoosterFee, "Incorrect fee");
+        require(collections[_collectionId].getCurrentCardCount() >= _amountOfCards, "Not enough cards in collection");
+
+        uint availableCardCount = collections[_collectionId].getCurrentCardCount();
+        uint nonce = 0;
+
         for (uint i = 0; i < _amountOfCards; i++) {
-            /** TODO : modifier la façon de générer rand ! */
-            uint rand = uint(keccak256("modifier"));
-            uint cardIdInCollection = rand % collections[_collectionId].getCurrentCardCount();
+            // Générer un nombre aléatoire basé sur le block.timestamp et un nonce pour varier
+            uint rand = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, nonce))) % availableCardCount;
+            nonce++;  // Augmenter le nonce pour chaque tirage
+
+            // Obtenir l'ID de la carte dans la collection
+            uint cardIdInCollection = rand;
+
+            // Obtenir l'ID global de la nouvelle carte et l'incrémenter
             uint globalId = totalCardCount;
             totalCardCount = totalCardCount.add(1);
-            // CardInstance card = new CardInstance(collections[_collectionId].collectioncards[cardIdInCollection], globalId,false,0);
-            CardInstance.CardInstanceStruct memory card = CardInstance.CardInstanceStruct(collections[_collectionId].getCard(cardIdInCollection), globalId);
+
+            // Créer une instance de la carte à partir de la carte dans la collection
+            CardInstance.CardInstanceStruct memory card = CardInstance.CardInstanceStruct(
+                collections[_collectionId].getCard(cardIdInCollection),
+                globalId
+            );
+
+            // Ajouter la carte à la liste globale des cartes et assigner au joueur
             cards.push(card);
             assignCard(_to, globalId);
         }
@@ -166,4 +181,49 @@ contract Main is Ownable {
     // Le globalId de cardIstance c'est sa position dans Collection
 
 
+
+    function getAllCardIdsFromCollections() public view returns (uint[] memory) {
+        // D'abord, on compte combien de cartes au total sont dans toutes les collections
+        uint totalCards = 0;
+        for (uint i = 0; i < count; i++) {
+            totalCards = totalCards.add(collections[i].getCurrentCardCount());
+        }
+
+        // On crée un tableau dynamique pour stocker tous les cardIds
+        uint[] memory allCardIds = new uint[](totalCards);
+
+        uint index = 0; // Indice pour insérer les cardIds dans le tableau
+
+        // Ensuite, on parcourt chaque collection et on extrait les cardIds
+        for (uint i = 0; i < count; i++) {
+            uint cardCountInCollection = collections[i].getCurrentCardCount();
+
+            // Parcourir chaque carte dans la collection et récupérer son id
+            for (uint j = 0; j < cardCountInCollection; j++) {
+                allCardIds[index] = collections[i].getCard(j).id; // On ajoute le cardId à la bonne position
+                index = index.add(1); // On incrémente l'indice
+            }
+        }
+
+        return allCardIds; // Retourne le tableau avec tous les cardIds
+    }
+
+    function getCollectionIdFromCardId(uint _cardId) public view returns(uint){
+        uint res = 0;
+        for (uint i = 0; i < count; i++) {
+            Collection collection = collections[i];
+            for(uint j = 0; j<collection.cardCount();j++){
+                if(collection.getCard(j).id == _cardId){
+                    return i;
+                }
+            }
+
+        }
+        return res;
+    }
+
+
+    function getCountCards() public view returns(uint){
+        return totalCardCount;
+    }
 }

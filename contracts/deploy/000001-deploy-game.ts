@@ -57,7 +57,13 @@ const deployer: DeployFunction = async hre => {
   });
 
   // TODO : mettre des createCard/assign card ici : sur le owner (moi)
-  main.openBooster(0, 1, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+  main.createCard("salameche","",0);
+  main.createCard("tortank","",0);
+  main.createCard("magneto","",0);
+  main.createCard("Azul","",0);
+  main.createCard("Florizarre","",0);
+  main.openBooster(0, 4, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+  console.log(main.getCardsByOwner("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"));
 }
 
 export default deployer;
