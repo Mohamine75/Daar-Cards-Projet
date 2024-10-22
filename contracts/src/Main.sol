@@ -222,8 +222,14 @@ contract Main is Ownable {
         return res;
     }
 
+    function getCollectionName(uint _collectionId) public view returns(string memory){
+        return collections[_collectionId].name();
+    }
 
     function getCountCards() public view returns(uint){
         return totalCardCount;
     }
+
+
+
 }

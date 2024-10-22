@@ -69,7 +69,7 @@
   let main;
 
   async function startApp() {
-    const abi_main = [
+    const abi_main =  [
       {
         "inputs": [
           {
@@ -395,6 +395,25 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_collectionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "getCollectionName",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "getCountCards",
         "outputs": [
@@ -527,10 +546,11 @@
     // Afficher les cartes par collection
     for (const [collectionId, cardsInCollection] of Object.entries(collections)) {
       // Créer un bloc pour chaque collection
+      const collectionName = await main.methods.getCollectionName(collectionId).call();
       let collectionHtml = `
-        <div class="box">
-          <h2 class="title">Collection ${collectionId}</h2>
-          <div class="columns is-multiline" id="collection-${collectionId}">
+    <div class="box">
+      <h2 class="title">Collection ${collectionId}: ${collectionName}</h2>
+      <div class="columns is-multiline" id="collection-${collectionId}">
             <!-- Les cartes de cette collection seront affichées ici -->
           </div>
         </div>
