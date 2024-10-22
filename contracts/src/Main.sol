@@ -12,7 +12,7 @@ interface ICardInstance {
     struct Card {
         string nom;
         uint id;
-        string imageUrl;
+        string imageUrl; // TODO supprimer après une meilleure utilisation de l'API
         uint32 prix;
         bool dispo;
     }
@@ -53,7 +53,7 @@ contract Main is Ownable {
     //mapping(uint16 => Card[]) public collectionToCards; /** Déplacer ? mapping idCollection => Card[] */
 
     // mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
-    uint public openBoosterFee = 0.001 ether;
+    uint public openBoosterFee = 0 ether;
     CardInstance.CardInstanceStruct[] public cards;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
@@ -65,30 +65,7 @@ contract Main is Ownable {
         count = 0;
         totalCardCount = 0;
         cardInstance = ICardInstance(_cardInstanceAddress);
-
-        // Crée une collection et une carte de test lors du déploiement
-        collectionTest();
-        _createCard("Pikachu", "", 0);
-        _createCard("Bulbizarre", "", 0);
-        _createCard("Salameche", "", 0);
-        emit Debug("assign passe",msg.sender);
-        assignCard(msg.sender, 0); // Commente cette ligne pour tester
-        assignCard(msg.sender, 1); // Commente cette ligne pour tester
-        assignCard(msg.sender, 2); // Commente cette ligne pour tester
     }
-    /*constructor(address _cardInstanceAddress) {
-        _cardInstanceAddress = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
-        owner = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-        count = 0;
-        totalCardCount = 0;
-        cardInstance = CardInstance(_cardInstanceAddress);
-
-        // Crée une collection et une carte de test lors du déploiement
-        collectionTest();
-        _createCardTest("Pikachu", "", 0);
-        emit Debug("assign passe",msg.sender);
-        assignCard(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 0); // Commente cette ligne pour tester
-    }*/
 
     function collectionTest() internal onlyOwner {
         collections[count] = new Collection("test1", 20, 0); /** On assigne à la collection un id unique */
@@ -110,18 +87,18 @@ contract Main is Ownable {
         emit Transfer(msg.sender,_to,_globalCardId);
     }
 
-    function _createCard(string memory _name, string memory _imageUrlId, uint16 _collectionId) internal onlyOwner { // remettre external
-        // TODO :require(collections[_collectionId].collectionCards.length < collections[_collectionId].cardCount);
+    function createCard(string memory _name, string memory _imageUrl, uint16 _collectionId) external onlyOwner {
+        // TODO require(collections[_collectionId].collectionCards.length < collections[_collectionId].cardCount);
         Collection tmp = collections[_collectionId];
         uint cardIdInCollection = tmp.getCurrentCardCount();
-        CardInstance.Card memory card = CardInstance.Card(_name, cardIdInCollection, _imageUrlId,0,false);
+        CardInstance.Card memory card = CardInstance.Card(_name, cardIdInCollection, _imageUrl, 0,false);
         tmp.addCardToCollection(card);
         cards.push(CardInstance.CardInstanceStruct(card, totalCardCount));
         totalCardCount = totalCardCount.add(1);
-        emit NewCard(_name, _imageUrlId, _collectionId, cardIdInCollection,0,false);
+        emit NewCard(_name, _imageUrl, _collectionId, cardIdInCollection,0,false);
     }
 
-    function openBooster(uint16 _collectionId, uint _amountOfCards, address _to) external payable {
+    function openBooster(uint16 _collectionId, uint _amountOfCards, address _to) public payable { // TODO : remettre external
         /** DONE : rentre ça payant */
         require(msg.value == openBoosterFee);
         for (uint i = 0; i < _amountOfCards; i++) {
@@ -176,7 +153,7 @@ contract Main is Ownable {
         _;
     }
 
-    function getCardDetails(uint _cardId) public view returns(string memory nom, uint id, uint32 prix, bool dispo){
+    function getCardDetails(uint _cardId) public view returns(string memory nom, uint id, string memory imageUrl, uint32 prix, bool dispo){
         require(totalCardCount > _cardId);
         // string nom;
         // uint id;
@@ -184,7 +161,7 @@ contract Main is Ownable {
         // uint32 prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
         // bool dispo;
         CardInstance.Card memory tmp = cards[_cardId].cardType;
-        return (tmp.nom, tmp.id, tmp.prix, tmp.dispo);
+        return (tmp.nom, tmp.id, tmp.imageUrl, tmp.prix, tmp.dispo);
     }
     // Le globalId de cardIstance c'est sa position dans Collection
 

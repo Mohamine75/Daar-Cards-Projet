@@ -9,7 +9,7 @@ contract CardInstance is ERC721, Ownable {
     struct Card {
         string nom;
         uint id;
-        string imageUrl; /** On stocke juste un id, l'URL sera "calculé" */
+        string imageUrl; /** On stocke juste un id, l'URL sera "calculé" TODO : supprimer ? */ 
         uint32 prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
         bool dispo;
     }
