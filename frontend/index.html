@@ -699,28 +699,39 @@
   }
 
   function saveChanges() {
-    const id = document.getElementById("modal-id").textContent;
+    const cardIndex = parseInt(document.getElementById("modal-id").textContent); // Obtient l'indice de la carte affichée
     const newPrice = document.getElementById("modal-price").value;
     const newDispo = document.getElementById("modal-dispo").checked;
 
-    // Récupère l'adresse de l'utilisateur connecté
     web3.eth.getAccounts().then(async accounts => {
-      const userAddress = accounts[0];  // L'adresse de l'utilisateur connecté
+      const userAddress = accounts[0];
       try {
-        const realId = await main.methods.getRealId(id).call(); // Attendez le résultat de getRealId
+        // Vérifier que newPrice est un entier valide et dans la plage de uint32
+        const priceInBN = parseInt(newPrice); // Convertir en entier
+        if (isNaN(priceInBN) || priceInBN < 0 || priceInBN > 4294967295) {
+          throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
+        }
 
-        // Convertir newPrice en uint256
-        const priceInBN = web3.utils.toBN(newPrice);
+        // Récupérer les IDs des cartes possédées par l'utilisateur
+        const ownedCardIds = await main.methods.getCardsByOwner(userAddress).call();
+
+        // Vérifier que l'indice est valide
+        if (cardIndex < 0 || cardIndex > ownedCardIds.length) {
+          throw new Error("Invalid card index.");
+        }
+
+        // Récupérer l'ID de la carte correspondant à l'indice affiché
+        const cardId = ownedCardIds[cardIndex];
 
         // Envoie la transaction pour changer le prix
-        await main.methods.changePrix(realId, priceInBN).send({ from: userAddress });
+        await main.methods.changePrix(cardId, priceInBN).send({ from: userAddress });
         console.log("Price changed successfully");
 
         // Envoie la transaction pour changer la disponibilité
-        await main.methods.changeDispo(realId, newDispo).send({ from: userAddress });
+        await main.methods.changeDispo(cardId, newDispo).send({ from: userAddress });
         console.log("Availability changed successfully");
 
-        closeModal();  // Ferme la modale après avoir initié les transactions
+        closeModal(); // Ferme la modale après avoir initié les transactions
       } catch (error) {
         console.error("Error during transactions:", error);
       }
@@ -728,6 +739,9 @@
       console.error("Error getting user accounts:", error);
     });
   }
+
+
+
 
 
 

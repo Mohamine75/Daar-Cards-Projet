@@ -80,11 +80,21 @@ contract Main is Ownable {
     }
 
     function assignCard(address _to, uint _globalCardId) public onlyOwner {
-        //CardInstance.cardToOwner[_globalCardId] = _to;
+        // Récupère les détails de la carte depuis CardInstance
+
+        // Crée une copie de la carte pour l'utilisateur
+        CardInstance.Card memory newCard = CardInstance.Card({
+            nom: cards[_globalCardId].cardType.nom,
+            id: _globalCardId+1, // L'ID global de la carte
+            imageUrl:  cards[_globalCardId].cardType.imageUrl,
+            prix:  cards[_globalCardId].cardType.prix,
+            dispo:  cards[_globalCardId].cardType.dispo
+        });
+        cards.push(CardInstance.CardInstanceStruct(newCard,totalCardCount));
         cardInstance.assign(_to, _globalCardId);
-        
-        /** DONE : Appeler un événement (comme Transfer) */
-        emit Transfer(msg.sender,_to,_globalCardId);
+        totalCardCount++;
+        // Emit un événement Transfer pour signaler l'assignation de la carte
+        emit Transfer(msg.sender, _to, totalCardCount);
     }
 
     function createCard(string memory _name, string memory _imageUrl, uint16 _collectionId) public onlyOwner {
@@ -150,8 +160,8 @@ contract Main is Ownable {
 
         uint index = 0;
         for (uint i = 0; i < totalCardCount; i++) { // Parcours de toutes les cartes
-            if (cardInstance.getCardOwner(i) == _owner) { // Vérifie si l'adresse correspond au propriétaire de la carte
-                ownedCardIds[index] = i; // Ajoute l'ID de la carte au tableau
+            if (cardInstance.getCardOwner(i) == _owner) {
+                ownedCardIds[index] = i;
                 index++;
             }
         }
