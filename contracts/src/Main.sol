@@ -231,5 +231,44 @@ contract Main is Ownable {
     }
 
 
+    function changePrix(uint _cardId, uint32 _newPrice) public onlyOwnerOf(_cardId){
+        // Vérifie que la carte existe
+        require(_cardId < cards.length, "Card does not exist.");
+        // Change le prix de la carte
+        cards[_cardId].cardType.prix = _newPrice;
+    }
+
+    function changeDispo(uint _cardId, bool dispo) public onlyOwnerOf(_cardId){
+        require(_cardId < cards.length, "Card does not exist.");
+        // Change le prix de la carte
+        cards[_cardId].cardType.dispo = dispo;
+    }
+
+    function getOwners() public view returns (address[] memory) {
+        address[] memory owners = new address[](cards.length);
+
+        for (uint i = 0; i < cards.length; i++) {
+            owners[i] = cardInstance.getCardOwner(i); // Récupère le propriétaire de chaque carte
+        }
+
+        return owners;
+    }
+
+    function getRealId(uint _id) public view returns (uint) {
+        uint foundCount = 0;  // Compte le nombre de cartes trouvées
+        uint totalOwnedCards = cardInstance.getOwnerCardCount(msg.sender);  // Obtenir le nombre de cartes que possède l'utilisateur
+
+        require(_id < totalOwnedCards, "Provided ID is out of bounds.");  // Vérification
+
+        for (uint i = 0; i < cards.length; i++) {
+            if (cardInstance.getCardOwner(i) == msg.sender) {
+                if (foundCount == _id) {
+                    return i;  // Renvoie l'ID réel lorsque nous avons trouvé la carte correspondant à _id
+                }
+                foundCount++;  // Incrémente le compteur
+            }
+        }
+        revert("Card ID not found for this owner.");  // Révocation si aucune carte correspond
+    }
 
 }

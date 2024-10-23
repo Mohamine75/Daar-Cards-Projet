@@ -25,6 +25,7 @@ contract CardInstance is ERC721, Ownable {
 
     mapping (uint => address) cardApprovals;
     /** _tokenId correspond à global */
+
     function ownerOf(uint256 _tokenId) public view override returns (address _owner) {
         return cardToOwner[_tokenId];
     }

@@ -62,8 +62,7 @@ const deployer: DeployFunction = async hre => {
   main.createCard("magneto","",0);
   main.createCard("Azul","",0);
   main.createCard("Florizarre","",0);
-  main.openBooster(0, 4, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
-  console.log(main.getCardsByOwner("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"));
+  main.openBooster(0, 4, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
 }
 
 export default deployer;
