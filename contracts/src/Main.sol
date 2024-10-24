@@ -85,13 +85,13 @@ contract Main is Ownable {
         // Crée une copie de la carte pour l'utilisateur
         CardInstance.Card memory newCard = CardInstance.Card({
             nom: cards[_globalCardId].cardType.nom,
-            id: _globalCardId+1, // L'ID global de la carte
+            id: _globalCardId,
             imageUrl:  cards[_globalCardId].cardType.imageUrl,
-            prix:  cards[_globalCardId].cardType.prix,
-            dispo:  cards[_globalCardId].cardType.dispo
+            prix:  0,
+            dispo:  false
         });
         cards.push(CardInstance.CardInstanceStruct(newCard,totalCardCount));
-        cardInstance.assign(_to, _globalCardId);
+        cardInstance.assign(_to, totalCardCount);
         totalCardCount++;
         // Emit un événement Transfer pour signaler l'assignation de la carte
         emit Transfer(msg.sender, _to, totalCardCount);
@@ -166,12 +166,9 @@ contract Main is Ownable {
             }
         }
 
-        // require(ownedCardIds[1] > 0);
         return ownedCardIds; // Retourne le tableau des IDs des cartes
     }
 
-    //   return ownedCardIds; // Retourne le tableau des IDs des cartes
-    // }
 
     modifier onlyOwnerOf(uint _cardId){
         require(msg.sender == cardInstance.getCardOwner(_cardId));
@@ -253,6 +250,8 @@ contract Main is Ownable {
         // Change le prix de la carte
         cards[_cardId].cardType.dispo = dispo;
     }
+
+
 
     function getOwners() public view returns (address[] memory) {
         address[] memory owners = new address[](cards.length);

@@ -615,64 +615,63 @@
       }
     ];
     const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
-    var isSet = false;
-    await web3.eth.getAccounts().then(function(accounts) {
-      userAccount = accounts[0];
+
+    // Initialiser l'instance du contrat
+    main = new web3.eth.Contract(abi_main, MainAddr);
+
+    // Obtenir le premier compte connecté
+    const accounts = await web3.eth.getAccounts();
+    userAccount = accounts[0];
+
+    // Afficher les cartes du propriétaire actuel
+    await getCardsByOwner(userAccount).then(displayCards);
+
+    // Écouter les changements de compte
+    ethereum.on('accountsChanged', function(accounts) {
+      userAccount = accounts[0]; // Met à jour le compte utilisateur
+      getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
     });
-    main = new web3js.eth.Contract(abi_main, MainAddr);
+  }
 
-    var accountInterval = setInterval(async function() {
-      var currAccount;
-      await web3.eth.getAccounts().then(function(accounts) {
-        currAccount = accounts[0];
-      });
-      if (currAccount !== userAccount || !isSet) {
-        userAccount = currAccount;
-        isSet = true;
-        await getCardsByOwner(userAccount).then(displayCards);
-      }
-    }, 1000);
-    main.methods.getOwners().call().then(result => {
-      console.log("Number of owner's cards:", result);
-    })
-      .catch(error => {
-        console.error("Error fetching owner card count:", error);
-      });  }
+  async function displayCards(ids) {
+    $("#cards").empty(); // Vider le conteneur de cartes
 
-  function displayCards(ids) {
-    $("#cards").empty();
-    for (id of ids) {
-      getCardDetails(id)
-        .then(function(card) {
-          $("#cards").append(`
-          <div class="column is-one-third">
-            <div class="card" onclick="openModal(${card.id}, '${card.nom}', '${card.imageUrl}', ${card.prix}, ${card.dispo})">
-              <div class="card-image">
-                <figure class="image is-4by3">
-                  <img src="${card.imageUrl}" alt="${card.nom} card image">
-                </figure>
+    for (const id of ids) {
+      try {
+        const card = await getCardDetails(id); // Récupérer les détails de la carte
+        console.log(card);
+        // Ajouter la carte au conteneur
+        $("#cards").append(`
+        <div class="column is-one-third">
+          <div class="card" onclick="openModal(${card.id}, '${card.nom}', '${card.imageUrl}', ${card.prix}, ${card.dispo})">
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img src="${card.imageUrl}" alt="${card.nom} card image">
+              </figure>
+            </div>
+            <div class="card-content">
+              <div class="media">
+                <div class="media-left">
+                  <figure class="image is-48x48">
+                    <img src="src/assets/pokemon_icon.png" alt="Pokemon icon">
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <p class="title is-4">${card.nom}</p>
+                  <p class="subtitle is-6">#${card.id}</p>
+                </div>
               </div>
-              <div class="card-content">
-                <div class="media">
-                  <div class="media-left">
-                    <figure class="image is-48x48">
-                      <img src="src/assets/pokemon_icon.png" alt="Pokemon icon">
-                    </figure>
-                  </div>
-                  <div class="media-content">
-                    <p class="title is-4">${card.nom}</p>
-                    <p class="subtitle is-6">#${card.id}</p>
-                  </div>
-                </div>
-                <div class="content">
-                  Prix : ${card.prix} <br>
-                  Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}
-                </div>
+              <div class="content">
+                Prix : ${card.prix} <br>
+                Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}
               </div>
             </div>
           </div>
-        `);
-        });
+        </div>
+      `);
+      } catch (error) {
+        console.error(`Error fetching card details for ID ${id}:`, error);
+      }
     }
   }
 
@@ -714,7 +713,7 @@
 
         // Récupérer les IDs des cartes possédées par l'utilisateur
         const ownedCardIds = await main.methods.getCardsByOwner(userAddress).call();
-
+        console.log(ownedCardIds);
         // Vérifier que l'indice est valide
         if (cardIndex < 0 || cardIndex > ownedCardIds.length) {
           throw new Error("Invalid card index.");
@@ -722,7 +721,7 @@
 
         // Récupérer l'ID de la carte correspondant à l'indice affiché
         const cardId = ownedCardIds[cardIndex];
-
+        console.log(cardId);
         // Envoie la transaction pour changer le prix
         await main.methods.changePrix(cardId, priceInBN).send({ from: userAddress });
         console.log("Price changed successfully");
