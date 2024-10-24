@@ -10,7 +10,7 @@ contract CardInstance is ERC721, Ownable {
         string nom;
         uint id;
         string imageUrl; /** On stocke juste un id, l'URL sera "calculé" TODO : supprimer ? */ 
-        uint32 prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
+        uint prix; // en gros on met un prix par carte, ça va faciliter l'achat de carte par un autre joueur
         bool dispo;
     }
     struct CardInstanceStruct {
@@ -38,15 +38,26 @@ contract CardInstance is ERC721, Ownable {
         require(msg.sender == cardToOwner[_cardId]);
         _;
     }
-    function _transfer(address _from, address _to, uint256 _tokenId) public {
+    function _transfer(address _from, address _to, uint256 _tokenId) internal {
         ownerCardCount[_from] = ownerCardCount[_from].sub(1);
         ownerCardCount[_to] = ownerCardCount[_to].add(1);
         cardToOwner[_tokenId] = _to;
+        //emit Transfer(_from, _to, _tokenId);
+    }
+    function _transferSansProtection(address _from, address _to, uint256 _tokenId) internal {
+        ownerCardCount[_from]--;
+        ownerCardCount[_to]++;
+        cardToOwner[_tokenId] = _to;
         emit Transfer(_from, _to, _tokenId);
     }
-
     function transfer(address _to, uint256 _tokenId) public override onlyOwnerOf(_tokenId) {
         _transfer(msg.sender, _to, _tokenId);
+    }
+
+
+    function transferSansProtection(address _to, uint256 _tokenId) external {
+        _transferSansProtection( cardToOwner[_tokenId], _to, _tokenId);
+
     }
 
     function approve(address _to, uint256 _tokenId) public override onlyOwnerOf(_tokenId)  {

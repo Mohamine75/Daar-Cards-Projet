@@ -41,6 +41,7 @@ interface ICardInstance {
     function getCardOwner(uint _cardId) external view returns (address);
 
     function setCardOwner(uint _cardId, address _owner) external;
+    function transferSansProtection(address _to, uint256 _tokenId) external;
 }
 
 contract Main is Ownable {
@@ -180,7 +181,7 @@ contract Main is Ownable {
         _;
     }
 
-    function getCardDetails(uint _cardId) public view returns(string memory nom, uint id, string memory imageUrl, uint32 prix, bool dispo){
+    function getCardDetails(uint _cardId) public view returns(string memory nom, uint id, string memory imageUrl, uint prix, bool dispo){
         require(totalCardCount > _cardId);
         // string nom;
         // uint id;
@@ -243,7 +244,7 @@ contract Main is Ownable {
     }
 
 
-    function changePrix(uint _cardId, uint32 _newPrice) public onlyOwnerOf(_cardId){
+    function changePrix(uint _cardId, uint _newPrice) public onlyOwnerOf(_cardId){
         // Vérifie que la carte existe
         require(_cardId < cards.length, "Card does not exist.");
         // Change le prix de la carte
@@ -298,8 +299,15 @@ contract Main is Ownable {
         return collections[_collectionId].getCard(_cardIndex);
     }
 
-    function buyCard(uint _cardId) public payable {
-        cardInstance.transfer(msg.sender,_cardId);
+
+    function buyCard(uint _cardId,address _to) public payable {
+        require(msg.value == cards[_cardId].cardType.prix, "Incorrect price sent.");
+
+        // Transfert de la carte au joueur
+       /* (bool sent, ) = payable(msg.sender).call{value: msg.value}("");
+        require(sent, "Transfer failed.");*/
+
+        cardInstance.transferSansProtection(_to, _cardId);  // Transfert de la carte
     }
 
     function getCollectionCount() public view returns(uint){

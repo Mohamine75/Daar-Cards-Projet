@@ -107,7 +107,7 @@
   var userAccount;
 
   async function startApp() {
-    const abi_main =[
+    const abi_main = [
       {
         "inputs": [
           {
@@ -291,9 +291,9 @@
                 "type": "string"
               },
               {
-                "internalType": "uint32",
+                "internalType": "uint256",
                 "name": "prix",
-                "type": "uint32"
+                "type": "uint256"
               },
               {
                 "internalType": "bool",
@@ -340,9 +340,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint32",
+            "internalType": "uint256",
             "name": "_newPrice",
-            "type": "uint32"
+            "type": "uint256"
           }
         ],
         "name": "changePrix",
@@ -430,9 +430,9 @@
             "type": "string"
           },
           {
-            "internalType": "uint32",
+            "internalType": "uint256",
             "name": "prix",
-            "type": "uint32"
+            "type": "uint256"
           },
           {
             "internalType": "bool",
@@ -476,9 +476,9 @@
                 "type": "string"
               },
               {
-                "internalType": "uint32",
+                "internalType": "uint256",
                 "name": "prix",
-                "type": "uint32"
+                "type": "uint256"
               },
               {
                 "internalType": "bool",
@@ -842,7 +842,7 @@
     web3.eth.getAccounts().then(async accounts => {
       try {
         const priceInBN = parseInt(newPrice);
-        if (isNaN(priceInBN) || priceInBN < 0 || priceInBN > 4294967295) {
+        if (isNaN(priceInBN) || priceInBN < 0 ) {
           throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
         }
 
@@ -868,6 +868,7 @@
     }).catch(error => {
       console.error("Error getting user accounts:", error);
     });
+    startApp();
   }
 
 

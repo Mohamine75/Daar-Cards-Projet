@@ -122,7 +122,7 @@
   const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
   const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"; // Adresse du contrat principal
   let main;
-
+  let userAccount;
   async function startApp() {
     const abi_main =  [
       {
@@ -273,6 +273,11 @@
             "internalType": "uint256",
             "name": "_cardId",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
           }
         ],
         "name": "buyCard",
@@ -308,9 +313,9 @@
                 "type": "string"
               },
               {
-                "internalType": "uint32",
+                "internalType": "uint256",
                 "name": "prix",
-                "type": "uint32"
+                "type": "uint256"
               },
               {
                 "internalType": "bool",
@@ -357,9 +362,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint32",
+            "internalType": "uint256",
             "name": "_newPrice",
-            "type": "uint32"
+            "type": "uint256"
           }
         ],
         "name": "changePrix",
@@ -447,9 +452,9 @@
             "type": "string"
           },
           {
-            "internalType": "uint32",
+            "internalType": "uint256",
             "name": "prix",
-            "type": "uint32"
+            "type": "uint256"
           },
           {
             "internalType": "bool",
@@ -493,9 +498,9 @@
                 "type": "string"
               },
               {
-                "internalType": "uint32",
+                "internalType": "uint256",
                 "name": "prix",
-                "type": "uint32"
+                "type": "uint256"
               },
               {
                 "internalType": "bool",
@@ -525,6 +530,19 @@
             "internalType": "uint256[]",
             "name": "",
             "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCollectionCount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
           }
         ],
         "stateMutability": "view",
@@ -727,9 +745,18 @@
         "stateMutability": "nonpayable",
         "type": "function"
       }
-    ];  // Remplace par l'ABI du contrat principal
+    ];
+    // Remplace par l'ABI du contrat principal
     main = new web3.eth.Contract(abi_main, MainAddr);
-
+    ethereum.on('accountsChanged', async function(accounts) {
+      // Vérifier si un compte est sélectionné
+      if (accounts.length > 0) {
+        userAccount = accounts[0]; // Met à jour le compte utilisateur
+        await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
+      } else {
+        console.error("Aucun compte disponible après changement.");
+      }
+    });
     // Récupérer et afficher les cartes disponibles à l'achat
     await displayAvailableCards();
   }
@@ -751,7 +778,10 @@
     // Parcourir les cartes pour afficher uniquement celles disponibles à l'achat
     let index = 0;
     for (const card of cards) {
+      console.log("oui");
+
       if (card.cardType.dispo === true) {
+        console.log(index);
         const cardHtml = `
           <div class="column is-one-quarter">
             <div class="card">
@@ -777,13 +807,16 @@
   }
 
   // Fonction d'achat d'une carte
-  async function buyCard(cardId, price) {
-    const accounts = await web3.eth.getAccounts();
-    const userAccount = accounts[0];
+  async function buyCard(cardId, priceInEther) {
 
-    // Envoyer la transaction pour acheter la carte
-    await main.methods.buyCard(cardId).send({ from: userAccount, value: web3.utils.toWei(price.toString(), 'ether') });
+    // Convertir le prix de ether à wei avant d'envoyer la transaction
+    console.log(userAccount);
+    console.log(priceInEther);
 
+    // Envoyer la transaction pour acheter la carte avec le montant exact en wei
+    await main.methods.buyCard(cardId,userAccount).send({ from: userAccount, value: priceInEther});
+    console.log(cardId);
+    console.log(main.methods.getCardsByOwner(userAccount));
     // Recharger la page après l'achat
     await displayAvailableCards();
   }
@@ -794,7 +827,6 @@
     } else {
       console.log("Please install Metamask");
     }
-
     startApp();
   });
 </script>
