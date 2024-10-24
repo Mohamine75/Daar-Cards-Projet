@@ -13,7 +13,7 @@ const deployer: DeployFunction = async hre => {
   await main.deployed();
   console.log("Main deployed to:", main.address);
 
-
+  let limit = 0;
   console.log("CardInstance deployed to:", cardInstance.address);
   let collections: string[] = [];
   await fetch("https://api.pokemontcg.io/v2/sets").then(response => {
@@ -31,6 +31,8 @@ const deployer: DeployFunction = async hre => {
       console.error('Error fetching data:', error);
     });
   for (const [index, collection] of collections.entries()) {
+    if(limit>10) break;
+    limit++;
     try {
       const response = await fetch('https://api.pokemontcg.io/v2/cards?q=set.id:' + collection);
       if (!response.ok) {
@@ -52,15 +54,6 @@ const deployer: DeployFunction = async hre => {
   }
 
   // TODO : mettre des createCard/assign card ici : sur le owner (moi)
-  main.createCard("salameche","",0);
-  main.createCard("tortank","",0);
-  main.createCard("magneto","",0);
-  main.createCard("Azul","",0);
-  main.createCard("Florizarre","",0);
-  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",0);
-  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",1);
-  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",2);
-  main.assignCard("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",0);
-  main.openBooster(8, 2, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
+  main.openBooster(8, 4, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
 }
 export default deployer;

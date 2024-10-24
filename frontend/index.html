@@ -778,7 +778,7 @@
       getCardDetails(id).then(card => {
         $("#cards").append(`
         <div class="column is-one-third">
-          <div class="card" data-index="${index}" onclick="openModal(${index}, ${card.id}, '${card.nom}', '${card.imageUrl}', ${card.prix}, ${card.dispo})">
+          <div class="card" data-index="${index}" onclick="openModal(${index}, ${card.id}, '${encodeURIComponent(card.nom)}', '${encodeURIComponent(card.imageUrl)}', ${card.prix}, ${card.dispo})">
             <div class="card-image">
               <figure class="image is-4by3">
                 <img src="${card.imageUrl}" alt="${card.nom} card image">
@@ -818,6 +818,9 @@
   }
 
   function openModal(index, id, name, imgUrl, price, dispo) {
+    name = decodeURIComponent(name);
+    imgUrl = decodeURIComponent(imgUrl);
+
     document.getElementById("modal-title").textContent = name;
     document.getElementById("modal-id").textContent = id;
     document.getElementById("modal-img").src = imgUrl;
@@ -828,9 +831,6 @@
     document.getElementById("cardModal").setAttribute("data-index", index);
 
     document.getElementById("cardModal").classList.add("is-active");
-  }
-  function closeModal() {
-    document.getElementById("cardModal").classList.remove("is-active");
   }
 
   async function saveChanges() {
@@ -871,7 +871,9 @@
     startApp();
   }
 
-
+  function closeModal() {
+    document.getElementById("cardModal").classList.remove("is-active");
+  }
 
 
 

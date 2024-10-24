@@ -66,7 +66,6 @@ contract Main is Ownable {
         count = 0;
         totalCardCount = 0;
         cardInstance = ICardInstance(_cardInstanceAddress);
-        collectionTest();
     }
 
     function collectionTest() internal onlyOwner {

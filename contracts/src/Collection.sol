@@ -26,7 +26,7 @@ contract Collection {
   }
 
   function addCardToCollection(CardInstance.Card memory _card) public {
-      require(currentCardCount < cardCount, "Collection is full"); // Vérifie que la collection n'est pas pleine
+      require(currentCardCount <= cardCount, "Collection is full"); // Vérifie que la collection n'est pas pleine
       collectionCards.push(_card); // Ajoute la carte à la fin du tableau
       currentCardCount = currentCardCount.add(1);
   }
