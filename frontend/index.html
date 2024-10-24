@@ -619,20 +619,32 @@
     // Initialiser l'instance du contrat
     main = new web3.eth.Contract(abi_main, MainAddr);
 
-    // Obtenir le premier compte connecté
+    // Obtenir tous les comptes connectés
     const accounts = await web3.eth.getAccounts();
+
+    // Vérifier si des comptes sont disponibles
+    if (accounts.length === 0) {
+      console.error("Aucun compte connecté. Veuillez vous connecter à un portefeuille.");
+      return;
+    }
+
+    // Utiliser le premier compte comme compte utilisateur (ou vous pouvez avoir une logique pour choisir un autre compte)
     userAccount = accounts[0];
 
     // Afficher les cartes du propriétaire actuel
     await getCardsByOwner(userAccount).then(displayCards);
 
     // Écouter les changements de compte
-    ethereum.on('accountsChanged', function(accounts) {
-      userAccount = accounts[0]; // Met à jour le compte utilisateur
-      getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
+    ethereum.on('accountsChanged', async function(accounts) {
+      // Vérifier si un compte est sélectionné
+      if (accounts.length > 0) {
+        userAccount = accounts[0]; // Met à jour le compte utilisateur
+        await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
+      } else {
+        console.error("Aucun compte disponible après changement.");
+      }
     });
   }
-
   async function displayCards(ids) {
     $("#cards").empty(); // Vider le conteneur de cartes
 
@@ -703,7 +715,6 @@
     const newDispo = document.getElementById("modal-dispo").checked;
 
     web3.eth.getAccounts().then(async accounts => {
-      const userAddress = accounts[0];
       try {
         // Vérifier que newPrice est un entier valide et dans la plage de uint32
         const priceInBN = parseInt(newPrice); // Convertir en entier
@@ -712,22 +723,18 @@
         }
 
         // Récupérer les IDs des cartes possédées par l'utilisateur
-        const ownedCardIds = await main.methods.getCardsByOwner(userAddress).call();
+        const ownedCardIds = await main.methods.getCardsByOwner(userAccount).call();
         console.log(ownedCardIds);
-        // Vérifier que l'indice est valide
-        if (cardIndex < 0 || cardIndex > ownedCardIds.length) {
-          throw new Error("Invalid card index.");
-        }
 
         // Récupérer l'ID de la carte correspondant à l'indice affiché
         const cardId = ownedCardIds[cardIndex];
         console.log(cardId);
         // Envoie la transaction pour changer le prix
-        await main.methods.changePrix(cardId, priceInBN).send({ from: userAddress });
+        await main.methods.changePrix(cardId, priceInBN).send({ from: userAccount });
         console.log("Price changed successfully");
 
         // Envoie la transaction pour changer la disponibilité
-        await main.methods.changeDispo(cardId, newDispo).send({ from: userAddress });
+        await main.methods.changeDispo(cardId, newDispo).send({ from: userAccount });
         console.log("Availability changed successfully");
 
         closeModal(); // Ferme la modale après avoir initié les transactions
