@@ -56,6 +56,7 @@
   </div>
 </section>
 
+
 <!-- Modal pour visualiser et éditer une carte -->
 <div id="cardModal" class="modal">
   <div class="modal-background"></div>
@@ -777,38 +778,27 @@
     ids.forEach((id, index) => {
       getCardDetails(id).then(card => {
         $("#cards").append(`
-        <div class="column is-one-third">
-          <div class="card" data-index="${index}" onclick="openModal(${index}, ${card.id}, '${encodeURIComponent(card.nom)}', '${encodeURIComponent(card.imageUrl)}', ${card.prix}, ${card.dispo})">
-            <div class="card-image">
-              <figure class="image is-4by3">
-                <img src="${card.imageUrl}" alt="${card.nom} card image">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="media">
-                <div class="media-left">
-                  <figure class="image is-48x48">
-                    <img src="src/assets/pokemon_icon.png" alt="Pokemon icon">
-                  </figure>
-                </div>
-                <div class="media-content">
-                  <p class="title is-4">${card.nom}</p>
-                  <p class="subtitle is-6">#${card.id}</p>
-                </div>
-              </div>
-              <div class="content">
-                Prix : ${card.prix} <br>
-                Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}
-              </div>
+      <div class="column is-one-third">
+        <div class="card" style="height: 100%;" data-index="${index}" onclick="openModal(${index}, ${card.id}, '${encodeURIComponent(card.nom)}', '${encodeURIComponent(card.imageUrl)}', ${card.prix}, ${card.dispo})">
+          <div class="card-image" style="position: relative;">
+            <figure class="image is-4by3" style="height: 100%;">
+              <img src="${card.imageUrl}" alt="${card.nom} card image" style="object-fit: cover; width: 100%; height: 100%;">
+            </figure>
+            <div class="card-overlay" style="position: absolute; bottom: 0; background: rgba(0, 0, 0, 0.5); color: white; width: 100%; padding: 10px; text-align: center;">
+              <p>Prix : ${card.prix}</p>
+              <p>Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}</p>
             </div>
           </div>
         </div>
+      </div>
       `);
       }).catch(error => {
         console.error(`Error fetching card details for ID ${id}:`, error);
       });
     });
   }
+
+
   function getCardsByOwner(id) {
     return main.methods.getCardsByOwner(id).call()
   }
