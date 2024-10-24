@@ -280,4 +280,16 @@ contract Main is Ownable {
         revert("Card ID not found for this owner.");  // Révocation si aucune carte correspond
     }
 
+    function getTotalCollection() public view returns(uint){
+     return count;
+    }
+    function getCurrentCardCount(uint _collectionId) public view returns(uint){
+        return collections[_collectionId].currentCardCount();
+    }
+
+    function getCardInCollection(uint _collectionId,uint  _cardIndex ) public view returns(CardInstance.Card memory){
+
+
+        return collections[_collectionId].getCard(_cardIndex);
+    }
 }

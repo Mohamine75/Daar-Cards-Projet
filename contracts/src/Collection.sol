@@ -9,7 +9,7 @@ contract Collection {
 
   string public name;
   uint public cardCount;
-  uint currentCardCount;
+  uint public currentCardCount;
   uint id;
   CardInstance.Card[] public collectionCards;
 
