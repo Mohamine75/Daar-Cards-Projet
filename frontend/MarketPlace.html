@@ -4,11 +4,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pokémon TCG</title>
+  <title>MarketPlace - Pokémon TCG</title>
   <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script language="javascript" type="text/javascript" src="web3.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   <link rel="stylesheet" href="/styles.css">
+  <style>
+      body {
+          background-color: #f0f4f8;
+          font-family: 'Arial', sans-serif;
+          color: #333;
+      }
+
+      .navbar {
+          background-color: #5c6bc0;
+          color: white;
+      }
+
+      .navbar-item, .navbar-burger {
+          color: white;
+      }
+
+      .navbar-item:hover {
+          background-color: #3f51b5;
+      }
+
+      .section {
+          padding: 2rem 1rem;
+      }
+
+      .box {
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-bottom: 2rem;
+      }
+
+      .card {
+          border-radius: 8px;
+          overflow: hidden;
+          transition: transform 0.2s;
+      }
+
+      .card:hover {
+          transform: scale(1.05);
+      }
+
+      .footer {
+          background-color: #5c6bc0;
+          color: white;
+          padding: 1rem 0;
+      }
+
+      .footer a {
+          color: white;
+      }
+
+      .footer a:hover {
+          text-decoration: underline;
+      }
+  </style>
 </head>
 
 <body>
@@ -16,7 +71,7 @@
 <!-- Navbar -->
 <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item" href="#">
+    <a class="navbar-item" href="index.html">
       <img src="src/assets/logo_TCG.png" alt="Pokemon TCG Logo" style="width: 100px; height: 100px; object-fit: contain;" />
     </a>
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -28,9 +83,8 @@
 
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <a class="navbar-item" href="#">Home</a>
+      <a class="navbar-item" href="index.html">Home</a>
       <a class="navbar-item" href="#">Documentation</a>
-      <a class="navbar-item" href="collections.html">Collections</a>
       <a class="navbar-item" href="MarketPlace.html">MarketPlace</a>
     </div>
 
@@ -45,51 +99,15 @@
   </div>
 </nav>
 
-
-<!-- Section des cartes -->
+<!-- Section des cartes disponibles à l'achat -->
 <section class="section">
   <div class="container">
-    <h1 class="title has-text-centered">My Pokémon Cards</h1>
-    <div class="columns is-multiline" id="cards">
-      <!-- Les cartes seront ajoutées ici -->
+    <h1 class="title has-text-centered">MarketPlace - Available Cards</h1>
+    <div id="marketplace-container" class="columns is-multiline">
+      <!-- Les cartes disponibles à l'achat seront affichées ici -->
     </div>
   </div>
 </section>
-
-<!-- Modal pour visualiser et éditer une carte -->
-<div id="cardModal" class="modal">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <header class="modal-card-head">
-      <p class="modal-card-title" id="modal-title">Card Title</p>
-      <button class="delete" aria-label="close" onclick="closeModal()"></button>
-    </header>
-    <section class="modal-card-body">
-      <!-- Contenu de la carte -->
-      <div class="columns">
-        <div class="column is-half">
-          <figure class="image is-4by3">
-            <img id="modal-img" src="src/assets/pokemon_card_example.png" alt="Card image">
-          </figure>
-        </div>
-        <div class="column is-half">
-          <p><strong>ID:</strong> <span id="modal-id">#025</span></p>
-          <p><strong>Type:</strong> <span id="modal-type">Electric</span></p>
-          <p><strong>Prix:</strong> <input id="modal-price" type="text" value="10" class="input"></p>
-          <p><strong>Disponibilité:</strong>
-            <label class="checkbox">
-              <input id="modal-dispo" type="checkbox"> Disponible
-            </label>
-          </p>
-        </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-      <button class="button is-success" onclick="saveChanges()">Save changes</button>
-      <button class="button" onclick="closeModal()">Cancel</button>
-    </footer>
-  </div>
-</div>
 
 <!-- Footer -->
 <footer class="footer">
@@ -102,12 +120,11 @@
 
 <script>
   const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
-
-  var cards;
-  var userAccount;
+  const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"; // Adresse du contrat principal
+  let main;
 
   async function startApp() {
-    const abi_main = [
+    const abi_main =  [
       {
         "inputs": [
           {
@@ -433,6 +450,57 @@
       {
         "inputs": [
           {
+            "internalType": "uint256",
+            "name": "_collectionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_cardIndex",
+            "type": "uint256"
+          }
+        ],
+        "name": "getCardInCollection",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "nom",
+                "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "imageUrl",
+                "type": "string"
+              },
+              {
+                "internalType": "uint32",
+                "name": "prix",
+                "type": "uint32"
+              },
+              {
+                "internalType": "bool",
+                "name": "dispo",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct CardInstance.Card",
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "address",
             "name": "_owner",
             "type": "address"
@@ -501,6 +569,25 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_collectionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "getCurrentCardCount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "getOwners",
         "outputs": [
@@ -522,6 +609,19 @@
           }
         ],
         "name": "getRealId",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getTotalCollection",
         "outputs": [
           {
             "internalType": "uint256",
@@ -614,151 +714,72 @@
         "stateMutability": "nonpayable",
         "type": "function"
       }
-    ];
-    const MainAddr = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
-
-    // Initialiser l'instance du contrat
+    ] ;  // Remplace par l'ABI du contrat principal
     main = new web3.eth.Contract(abi_main, MainAddr);
 
-    // Obtenir tous les comptes connectés
-    const accounts = await web3.eth.getAccounts();
+    // Récupérer et afficher les cartes disponibles à l'achat
+    await displayAvailableCards();
+  }
 
-    // Vérifier si des comptes sont disponibles
-    if (accounts.length === 0) {
-      console.error("Aucun compte connecté. Veuillez vous connecter à un portefeuille.");
-      return;
+  async function displayAvailableCards() {
+    const marketplaceContainer = $("#marketplace-container");
+    marketplaceContainer.empty();
+
+    // Récupérer toutes les cartes
+    const totalCards = await main.methods.getCountCards().call();  // Méthode pour obtenir le nombre total de cartes
+    const cardPromises = [];
+
+    for (let cardId = 0; cardId < totalCards; cardId++) {
+      cardPromises.push(main.methods.cards(cardId).call());  // Récupérer chaque carte par son ID
     }
 
-    // Utiliser le premier compte comme compte utilisateur (ou vous pouvez avoir une logique pour choisir un autre compte)
-    userAccount = accounts[0];
-
-    // Afficher les cartes du propriétaire actuel
-    await getCardsByOwner(userAccount).then(displayCards);
-
-    // Écouter les changements de compte
-    ethereum.on('accountsChanged', async function(accounts) {
-      // Vérifier si un compte est sélectionné
-      if (accounts.length > 0) {
-        userAccount = accounts[0]; // Met à jour le compte utilisateur
-        await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
-      } else {
-        console.error("Aucun compte disponible après changement.");
-      }
-    });
-  }
-  async function displayCards(ids) {
-    $("#cards").empty(); // Vider le conteneur de cartes
-
-    for (const id of ids) {
-      try {
-        const card = await getCardDetails(id); // Récupérer les détails de la carte
-        console.log(card);
-        // Ajouter la carte au conteneur
-        $("#cards").append(`
-        <div class="column is-one-third">
-          <div class="card" onclick="openModal(${card.id}, '${card.nom}', '${card.imageUrl}', ${card.prix}, ${card.dispo})">
-            <div class="card-image">
-              <figure class="image is-4by3">
-                <img src="${card.imageUrl}" alt="${card.nom} card image">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="media">
-                <div class="media-left">
-                  <figure class="image is-48x48">
-                    <img src="src/assets/pokemon_icon.png" alt="Pokemon icon">
-                  </figure>
-                </div>
-                <div class="media-content">
-                  <p class="title is-4">${card.nom}</p>
-                  <p class="subtitle is-6">#${card.id}</p>
-                </div>
+    const cards = await Promise.all(cardPromises);
+    console.log(cards);
+    // Parcourir les cartes pour afficher uniquement celles disponibles à l'achat
+    for (const card of cards) {
+      if (card.cardType.dispo === true) {
+        const cardHtml = `
+          <div class="column is-one-quarter">
+            <div class="card">
+              <div class="card-image">
+                <figure class="image is-4by3">
+                  <img src="${card.cardType.imageUrl}" alt="${card.cardType.nom}">
+                </figure>
               </div>
-              <div class="content">
-                Prix : ${card.prix} <br>
-                Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}
+              <div class="card-content">
+                <p class="title is-5">${card.cardType.nom}</p>
+                <p>ID: ${card.cardType.id}</p>
+                <p>Price: ${card.cardType.prix} ETH</p>
+                <button class="button is-primary" onclick="buyCard(${card.cardType.id}, ${card.cardType.prix})">Buy Now</button>
               </div>
             </div>
           </div>
-        </div>
-      `);
-      } catch (error) {
-        console.error(`Error fetching card details for ID ${id}:`, error);
+        `;
+
+        marketplaceContainer.append(cardHtml);
       }
     }
   }
 
-  function getCardsByOwner(id) {
-    return main.methods.getCardsByOwner(id).call()
+  // Fonction d'achat d'une carte
+  async function buyCard(cardId, price) {
+    const accounts = await web3.eth.getAccounts();
+    const userAccount = accounts[0];
+
+    // Envoyer la transaction pour acheter la carte
+    await main.methods.buyCard(cardId).send({ from: userAccount, value: web3.utils.toWei(price.toString(), 'ether') });
+
+    // Recharger la page après l'achat
+    await displayAvailableCards();
   }
 
-  function getCardDetails(id) {
-    return main.methods.getCardDetails(id).call()
-  }
-
-  function openModal(id, name, imgUrl, price, dispo) {
-    document.getElementById("modal-title").textContent = name;
-    document.getElementById("modal-id").textContent = id;
-    document.getElementById("modal-img").src = imgUrl;
-    document.getElementById("modal-price").value = price;
-    document.getElementById("modal-dispo").checked = dispo;
-
-    document.getElementById("cardModal").classList.add("is-active");
-  }
-
-  function closeModal() {
-    document.getElementById("cardModal").classList.remove("is-active");
-  }
-
-  function saveChanges() {
-    const cardIndex = parseInt(document.getElementById("modal-id").textContent); // Obtient l'indice de la carte affichée
-    const newPrice = document.getElementById("modal-price").value;
-    const newDispo = document.getElementById("modal-dispo").checked;
-
-    web3.eth.getAccounts().then(async accounts => {
-      try {
-        // Vérifier que newPrice est un entier valide et dans la plage de uint32
-        const priceInBN = parseInt(newPrice); // Convertir en entier
-        if (isNaN(priceInBN) || priceInBN < 0 || priceInBN > 4294967295) {
-          throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
-        }
-
-        // Récupérer les IDs des cartes possédées par l'utilisateur
-        const ownedCardIds = await main.methods.getCardsByOwner(userAccount).call();
-        console.log(ownedCardIds);
-
-        // Récupérer l'ID de la carte correspondant à l'indice affiché
-        const cardId = ownedCardIds[cardIndex];
-        console.log(cardId);
-        // Envoie la transaction pour changer le prix
-        await main.methods.changePrix(cardId, priceInBN).send({ from: userAccount });
-        console.log("Price changed successfully");
-
-        // Envoie la transaction pour changer la disponibilité
-        await main.methods.changeDispo(cardId, newDispo).send({ from: userAccount });
-        console.log("Availability changed successfully");
-
-        closeModal(); // Ferme la modale après avoir initié les transactions
-      } catch (error) {
-        console.error("Error during transactions:", error);
-      }
-    }).catch(error => {
-      console.error("Error getting user accounts:", error);
-    });
-  }
-
-
-
-
-
-
-
-  window.addEventListener('load', function() {
+  window.addEventListener('load', function () {
     if (typeof web3 !== 'undefined') {
       web3js = new Web3(web3.currentProvider);
     } else {
-      console.log("Please install metamask");
+      console.log("Please install Metamask");
     }
+
     startApp();
   });
 </script>
