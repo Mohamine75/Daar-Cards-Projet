@@ -271,6 +271,19 @@
         "inputs": [
           {
             "internalType": "uint256",
+            "name": "_cardId",
+            "type": "uint256"
+          }
+        ],
+        "name": "buyCard",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
             "name": "",
             "type": "uint256"
           }
@@ -714,7 +727,7 @@
         "stateMutability": "nonpayable",
         "type": "function"
       }
-    ] ;  // Remplace par l'ABI du contrat principal
+    ];  // Remplace par l'ABI du contrat principal
     main = new web3.eth.Contract(abi_main, MainAddr);
 
     // Récupérer et afficher les cartes disponibles à l'achat
@@ -736,6 +749,7 @@
     const cards = await Promise.all(cardPromises);
     console.log(cards);
     // Parcourir les cartes pour afficher uniquement celles disponibles à l'achat
+    let index = 0;
     for (const card of cards) {
       if (card.cardType.dispo === true) {
         const cardHtml = `
@@ -750,7 +764,7 @@
                 <p class="title is-5">${card.cardType.nom}</p>
                 <p>ID: ${card.cardType.id}</p>
                 <p>Price: ${card.cardType.prix} ETH</p>
-                <button class="button is-primary" onclick="buyCard(${card.cardType.id}, ${card.cardType.prix})">Buy Now</button>
+                <button class="button is-primary" onclick="buyCard(${index}, ${card.cardType.prix})">Buy Now</button>
               </div>
             </div>
           </div>
@@ -758,6 +772,7 @@
 
         marketplaceContainer.append(cardHtml);
       }
+      index++;
     }
   }
 

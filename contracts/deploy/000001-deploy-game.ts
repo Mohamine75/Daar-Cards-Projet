@@ -63,10 +63,13 @@ const deployer: DeployFunction = async hre => {
   main.createCard("Azul","",0);
   main.createCard("Florizarre","",0);
   main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",0);
+  //main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",1);
   main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",1);
-  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",2);
-  main.assignCard("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",0);
-  //main.openBooster(0, 4, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
-}
+  main.assignCard("0x70997970C51812dc3A010C7d01b50e0d17dc79C8",0);
+ // main.openBooster(0, 2, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
+  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",0);
+  //main.openBooster(0, 2, "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC");
 
+
+}
 export default deployer;

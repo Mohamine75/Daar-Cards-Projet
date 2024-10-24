@@ -81,18 +81,26 @@ contract Main is Ownable {
 
     function assignCard(address _to, uint _globalCardId) public onlyOwner {
         // Récupère les détails de la carte depuis CardInstance
+        CardInstance.Card memory originalCard = cards[_globalCardId].cardType;
 
-        // Crée une copie de la carte pour l'utilisateur
+        // Crée une copie complète de la carte pour l'utilisateur
         CardInstance.Card memory newCard = CardInstance.Card({
-            nom: cards[_globalCardId].cardType.nom,
-            id: _globalCardId,
-            imageUrl:  cards[_globalCardId].cardType.imageUrl,
-            prix:  0,
-            dispo:  false
+            nom: originalCard.nom, // String copy
+            id: originalCard.id,     // ID copy
+            imageUrl: originalCard.imageUrl, // String copy
+            prix: 0,               // Override price
+            dispo: false           // Make it unavailable
         });
-        cards.push(CardInstance.CardInstanceStruct(newCard,totalCardCount));
+
+        // Pousser dans la liste des cartes
+        cards.push(CardInstance.CardInstanceStruct(newCard, totalCardCount));
+
+        // Assigner la carte au propriétaire
         cardInstance.assign(_to, totalCardCount);
+
+        // Incrémenter le compteur
         totalCardCount++;
+
         // Emit un événement Transfer pour signaler l'assignation de la carte
         emit Transfer(msg.sender, _to, totalCardCount);
     }
@@ -123,19 +131,16 @@ contract Main is Ownable {
             // Obtenir l'ID de la carte dans la collection
             uint cardIdInCollection = rand;
 
-            // Obtenir l'ID global de la nouvelle carte et l'incrémenter
-            uint globalId = totalCardCount;
-            totalCardCount = totalCardCount.add(1);
-
             // Créer une instance de la carte à partir de la carte dans la collection
             CardInstance.CardInstanceStruct memory card = CardInstance.CardInstanceStruct(
                 collections[_collectionId].getCard(cardIdInCollection),
-                globalId
+                totalCardCount
             );
 
             // Ajouter la carte à la liste globale des cartes et assigner au joueur
             cards.push(card);
-            assignCard(_to, globalId);
+            cardInstance.assign(_to, totalCardCount);
+            totalCardCount++;
         }
     }
     function setOpeningBoosterFee(uint _fee) external onlyOwner {
@@ -291,5 +296,13 @@ contract Main is Ownable {
 
 
         return collections[_collectionId].getCard(_cardIndex);
+    }
+
+    function buyCard(uint _cardId) public payable {
+        cardInstance.transfer(msg.sender,_cardId);
+    }
+
+    function getCollectionCount() public view returns(uint){
+        return count;
     }
 }

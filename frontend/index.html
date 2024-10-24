@@ -107,7 +107,7 @@
   var userAccount;
 
   async function startApp() {
-    const abi_main = [
+    const abi_main =[
       {
         "inputs": [
           {
@@ -248,6 +248,19 @@
         "name": "assignCard",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_cardId",
+            "type": "uint256"
+          }
+        ],
+        "name": "buyCard",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
       },
       {
@@ -433,6 +446,57 @@
       {
         "inputs": [
           {
+            "internalType": "uint256",
+            "name": "_collectionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_cardIndex",
+            "type": "uint256"
+          }
+        ],
+        "name": "getCardInCollection",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "nom",
+                "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "imageUrl",
+                "type": "string"
+              },
+              {
+                "internalType": "uint32",
+                "name": "prix",
+                "type": "uint32"
+              },
+              {
+                "internalType": "bool",
+                "name": "dispo",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct CardInstance.Card",
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "address",
             "name": "_owner",
             "type": "address"
@@ -444,6 +508,19 @@
             "internalType": "uint256[]",
             "name": "",
             "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCollectionCount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
           }
         ],
         "stateMutability": "view",
@@ -501,6 +578,25 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_collectionId",
+            "type": "uint256"
+          }
+        ],
+        "name": "getCurrentCardCount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "getOwners",
         "outputs": [
@@ -522,6 +618,19 @@
           }
         ],
         "name": "getRealId",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getTotalCollection",
         "outputs": [
           {
             "internalType": "uint256",
@@ -635,6 +744,8 @@
     // Afficher les cartes du propriétaire actuel
     await getCardsByOwner(userAccount).then(displayCards);
 
+    displayCollectionCount();
+
     // Écouter les changements de compte
     ethereum.on('accountsChanged', async function(accounts) {
       // Vérifier si un compte est sélectionné
@@ -646,17 +757,28 @@
       }
     });
   }
+
+  async function displayCollectionCount() {
+    try {
+      // Attendre que la promesse de l'appel au contrat soit résolue
+      var tmp = await main.methods.getCollectionCount().call();
+
+      // Afficher le résultat après que la promesse a été résolue
+      console.log(tmp);
+    } catch (error) {
+      // Gérer les erreurs si l'appel échoue
+      console.error("Erreur lors de l'appel à getCollectionCount :", error);
+    }
+  }
+
+
   async function displayCards(ids) {
     $("#cards").empty(); // Vider le conteneur de cartes
-
-    for (const id of ids) {
-      try {
-        const card = await getCardDetails(id); // Récupérer les détails de la carte
-        console.log(card);
-        // Ajouter la carte au conteneur
+    ids.forEach((id, index) => {
+      getCardDetails(id).then(card => {
         $("#cards").append(`
         <div class="column is-one-third">
-          <div class="card" onclick="openModal(${card.id}, '${card.nom}', '${card.imageUrl}', ${card.prix}, ${card.dispo})">
+          <div class="card" data-index="${index}" onclick="openModal(${index}, ${card.id}, '${card.nom}', '${card.imageUrl}', ${card.prix}, ${card.dispo})">
             <div class="card-image">
               <figure class="image is-4by3">
                 <img src="${card.imageUrl}" alt="${card.nom} card image">
@@ -682,12 +804,11 @@
           </div>
         </div>
       `);
-      } catch (error) {
+      }).catch(error => {
         console.error(`Error fetching card details for ID ${id}:`, error);
-      }
-    }
+      });
+    });
   }
-
   function getCardsByOwner(id) {
     return main.methods.getCardsByOwner(id).call()
   }
@@ -696,40 +817,42 @@
     return main.methods.getCardDetails(id).call()
   }
 
-  function openModal(id, name, imgUrl, price, dispo) {
+  function openModal(index, id, name, imgUrl, price, dispo) {
     document.getElementById("modal-title").textContent = name;
     document.getElementById("modal-id").textContent = id;
     document.getElementById("modal-img").src = imgUrl;
     document.getElementById("modal-price").value = price;
     document.getElementById("modal-dispo").checked = dispo;
 
+    // Stocke l'index d'affichage dans la modale
+    document.getElementById("cardModal").setAttribute("data-index", index);
+
     document.getElementById("cardModal").classList.add("is-active");
   }
-
   function closeModal() {
     document.getElementById("cardModal").classList.remove("is-active");
   }
 
-  function saveChanges() {
-    const cardIndex = parseInt(document.getElementById("modal-id").textContent); // Obtient l'indice de la carte affichée
+  async function saveChanges() {
+    const modal = document.getElementById("cardModal");
+    const cardIndex = modal.getAttribute("data-index"); // Récupère l'index de l'affichage
     const newPrice = document.getElementById("modal-price").value;
     const newDispo = document.getElementById("modal-dispo").checked;
 
     web3.eth.getAccounts().then(async accounts => {
       try {
-        // Vérifier que newPrice est un entier valide et dans la plage de uint32
-        const priceInBN = parseInt(newPrice); // Convertir en entier
+        const priceInBN = parseInt(newPrice);
         if (isNaN(priceInBN) || priceInBN < 0 || priceInBN > 4294967295) {
           throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
         }
 
         // Récupérer les IDs des cartes possédées par l'utilisateur
         const ownedCardIds = await main.methods.getCardsByOwner(userAccount).call();
-        console.log(ownedCardIds);
-
-        // Récupérer l'ID de la carte correspondant à l'indice affiché
+        console.log("ownedCardsID :" + ownedCardIds)
+        // Utiliser l'index d'affichage pour récupérer le bon ID de carte
         const cardId = ownedCardIds[cardIndex];
         console.log(cardId);
+
         // Envoie la transaction pour changer le prix
         await main.methods.changePrix(cardId, priceInBN).send({ from: userAccount });
         console.log("Price changed successfully");
