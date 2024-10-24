@@ -15,46 +15,41 @@ const deployer: DeployFunction = async hre => {
 
 
   console.log("CardInstance deployed to:", cardInstance.address);
-
-  // Collection names and card counts come from Pokemon tcg
-  let collections: [string, number][] = [];  // Array of tuples: [collectionID, cardCount]
-  fetch("https://api.pokemontcg.io/v2/sets")
-  .then(response => {
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-  })
-  .then(data => {
-    for (let i = 0; i < data.count; i++) {
-      collections.push(data.data[i].id, data.data[i].total);
+  let collections: string[] = [];
+  await fetch("https://api.pokemontcg.io/v2/sets").then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    return response.json();
   })
-  .catch(error => {
-      console.error('Error fetching data:', error);
-  });
-
-  for (let i = 0; i < collections.length; i++) {
-    main.createCollection(collections[i][0], collections[i][1]);
-  }
-
-  collections.forEach(function(collection, index) {
-    fetch('https://api.pokemontcg.io/v2/cards?q=set.id:' + collection[0])
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
     .then(data => {
-      for (let i = 0; i < data.count; i++) {
-        main.createCard(data.data[i].name, data.data[i].images.small, index);
+      for (let i = 0; i < data.count; i++) {collections.push(data.data[i].id);
+        main.createCollection(data.data[i].id, data.data[i].total)
       }
     })
     .catch(error => {
-        console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);
     });
-  });
+  for (const [index, collection] of collections.entries()) {
+    try {
+      const response = await fetch('https://api.pokemontcg.io/v2/cards?q=set.id:' + collection);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      console.log("====================================== " + collection);
+      console.log("====================================== " + data.count);
+
+      // Create cards for each collection
+      for (let i = 0; i < data.count; i++) { // TODO : remplacer par data.count
+        console.log("Creating card: " + data.data[i].name + " in collection index: " + index);
+        await main.createCard(data.data[i].name, data.data[i].images.small, index);
+      }
+    } catch (error) {
+      console.error('Error fetching cards data:', error);
+    }
+  }
 
   // TODO : mettre des createCard/assign card ici : sur le owner (moi)
   main.createCard("salameche","",0);
@@ -63,13 +58,9 @@ const deployer: DeployFunction = async hre => {
   main.createCard("Azul","",0);
   main.createCard("Florizarre","",0);
   main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",0);
-  //main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",1);
   main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",1);
-  main.assignCard("0x70997970C51812dc3A010C7d01b50e0d17dc79C8",0);
- // main.openBooster(0, 2, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
-  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",0);
-  //main.openBooster(0, 2, "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC");
-
-
+  main.assignCard("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",2);
+  main.assignCard("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",0);
+  main.openBooster(8, 2, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
 }
 export default deployer;
