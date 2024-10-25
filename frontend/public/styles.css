@@ -29,7 +29,9 @@ header {
     padding: 20px 0;
     text-align: center;
 }
-
+.column {
+    padding: 0; /* Supprime les marges/paddings superflus */
+}
 header h1 {
     margin: 0;
     font-size: 2.5rem;
@@ -126,27 +128,29 @@ footer p {
     font-size: 0.9rem; /* Petite taille de police pour le footer */
 }
 
-/* Card styles */
 .card {
-    width: 250px; /* Largeur de la carte */
-    height: 350px; /* Hauteur de la carte */
-    margin: 20px; /* Espace autour des cartes */
-    border-radius: 10px; /* Coins arrondis pour un effet esthétique */
-    transition: transform 0.2s; /* Transition pour l'effet de hover */
-    background-color: #ffffff; /* Fond blanc pour les cartes */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre de la carte */
+    height: 100%;
 }
 
+.card-image {
+    width: 100%;
+    height: 250px; /* Définir une hauteur fixe pour contrôler l'apparence de l'image */
+    overflow: hidden;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.card-image img {
+    object-fit: contain; /* Redimensionne l'image sans la rogner, elle s'adapte au conteneur */
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0; /* Optionnel: couleur de fond pour combler les espaces */
+}
 .card:hover {
     transform: scale(1.05); /* Agrandir légèrement la carte au survol */
 }
 
-.card-image {
-    height: 60%; /* Ajuster l'image à 60% de la hauteur de la carte */
-    overflow: hidden; /* Cacher les débordements */
-    border-top-left-radius: 10px; /* Coins arrondis pour l'image */
-    border-top-right-radius: 10px; /* Coins arrondis pour l'image */
-}
+
 
 .card-content {
     height: 40%; /* Ajuster le contenu à 40% de la hauteur de la carte */
