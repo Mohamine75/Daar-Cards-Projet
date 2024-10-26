@@ -305,8 +305,9 @@ contract Main is Ownable {
         // Transfert de la carte au joueur
        /* (bool sent, ) = payable(msg.sender).call{value: msg.value}("");
         require(sent, "Transfer failed.");*/
-
+        emit Transfer(msg.sender,_to,_cardId);
         cardInstance.transferSansProtection(_to, _cardId);  // Transfert de la carte
+        cards[_cardId].cardType.dispo = false;
     }
 
     function getCollectionCount() public view returns(uint){

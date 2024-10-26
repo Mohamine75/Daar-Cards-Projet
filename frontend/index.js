@@ -3,7 +3,7 @@ const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 var cards;
 var userAccount;
 var cardIds = new Map(); // globalId => index
-const cardInfos = new Map(); // globalId => objet contenant les attributs de la carte
+var cardInfos = new Map(); // globalId => objet contenant les attributs de la carte
 var currCardIds = new Map();
 
 async function startApp() {
@@ -652,7 +652,7 @@ async function startApp() {
     // Vérifier si un compte est sélectionné
     if (accounts.length > 0) {
       userAccount = accounts[0]; // Met à jour le compte utilisateur
-      requestCards();
+      await requestCards();
     } else {
       console.error("Aucun compte disponible après changement.");
     }
@@ -660,7 +660,11 @@ async function startApp() {
 }
 
 async function requestCards() {
-  await getCardsByOwner(userAccount).then(async(ownerCards) => {
+  cardIds = new Map(); // globalId => index
+  cardInfos = new Map(); // globalId => objet contenant les attributs de la carte
+  currCardIds = new Map();    await getCardsByOwner(userAccount).then(async(ownerCards) => {
+    console.log(userAccount);
+    console.log(ownerCards);
     await fillIds(ownerCards);
     await fillCardsInfo(cardIds);
     cardIds = orderCards(cardIds, 'ASC', 'nom');
