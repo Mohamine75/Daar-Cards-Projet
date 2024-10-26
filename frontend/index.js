@@ -155,6 +155,11 @@ async function startApp() {
           "internalType": "uint256",
           "name": "_cardId",
           "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
         }
       ],
       "name": "buyCard",
@@ -298,6 +303,19 @@ async function startApp() {
           "internalType": "uint256[]",
           "name": "",
           "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBoosterFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -762,7 +780,7 @@ function displayCards(ids) {
     card = cardInfos.get(id);
     currIndex = cardIds.get(id);
     $("#cards").append(`
-      <div class="column is-one-quarter" style="margin: 10px;">
+      <div class="column is-one-fifth-fullhd" style="margin: 10px;">
         <div class="card" style="height: 100%; position: relative;" data-index="${currIndex}" id="${id}">
           <div class="card-image">
             <figure class="image is-4by3">

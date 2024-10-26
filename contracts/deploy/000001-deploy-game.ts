@@ -54,6 +54,6 @@ const deployer: DeployFunction = async hre => {
   }
 
   // TODO : mettre des createCard/assign card ici : sur le owner (moi)
-  main.openBooster(8, 8, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
+  //main.openBooster(8, 8, "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
 }
 export default deployer;

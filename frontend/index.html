@@ -56,7 +56,6 @@
       <div class="control">
         <input class="input" type="text" id="search" placeholder="Rechercher un pokémon">
         <div class="field has-addons">
-          <!-- Wrapper for select -->
           <div class="control">
             <div class="select">
               <select name="sort-option" id="sort-option" class="select-hidden">
@@ -67,7 +66,6 @@
             </div>
           </div>
 
-          <!-- Wrapper for button -->
           <div class="control">
             <button class="button is-primary is-light" id="changeOrder" disabled>
               <span class="icon"><i class="fas fa-angle-up"></i></span>
@@ -85,10 +83,16 @@
           </div>
         </div>
       </div>
-      <div class="columns is-multiline mt-1" id="cards">
-        <!-- Les cartes seront ajoutées ici -->
+      <div class="columns is-multiline" id="cards">
+        <div class="column is-one-fifth">
+          <div class="card">
+            <!-- Contenu de la carte -->
+          </div>
+        </div>
+        <!-- Répétez pour chaque carte -->
       </div>
     </div>
+  </div>
 </section>
 
 <!-- Modal pour visualiser et éditer une carte -->
@@ -109,7 +113,6 @@
         </div>
         <div class="column is-half">
           <p><strong>ID:</strong> <span id="modal-id">#025</span></p>
-          <p><strong>Type:</strong> <span id="modal-type">Electric</span></p>
           <p><strong>Prix:</strong> <input id="modal-price" type="text" value="10" class="input"></p>
           <p><strong>Disponibilité:</strong>
             <label class="checkbox">
@@ -125,6 +128,8 @@
     </footer>
   </div>
 </div>
+
+
 <!-- Modal pour créer une collection -->
 <div id="collectionModal" class="modal">
   <div class="modal-background"></div>

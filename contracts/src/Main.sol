@@ -54,7 +54,7 @@ contract Main is Ownable {
     //mapping(uint16 => Card[]) public collectionToCards; /** Déplacer ? mapping idCollection => Card[] */
 
     // mapping(uint => address) public cardApprovals;    /** Approbations pour transfert de cartes */
-    uint public openBoosterFee = 0 ether;
+    uint public openBoosterFee = 0.001 ether;
     CardInstance.CardInstanceStruct[] public cards;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
@@ -312,5 +312,10 @@ contract Main is Ownable {
 
     function getCollectionCount() public view returns(uint){
         return count;
+    }
+
+
+    function getBoosterFee() public view returns(uint){
+        return openBoosterFee;
     }
 }

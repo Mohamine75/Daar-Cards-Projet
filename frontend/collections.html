@@ -111,6 +111,26 @@
   </div>
 </section>
 
+<!-- Modal pour acheter un booster -->
+<div id="boosterModal" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="box">
+      <h1 class="title">Acheter un Booster</h1>
+      <p>Souhaitez-vous acheter un booster pour cette collection ?</p>
+      <div class="field">
+        <label class="label">Nombre de cartes</label>
+        <div class="control">
+          <input id="amountOfCards" class="input" type="number" min="1" value="2" />
+        </div>
+      </div>
+      <button id="confirmPurchase" class="button is-primary">Confirmer l'achat</button>
+      <button class="button" id="closeModal">Annuler</button>
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close"></button>
+</div>
+
 <!-- Footer -->
 <footer class="footer">
   <div class="content has-text-centered">

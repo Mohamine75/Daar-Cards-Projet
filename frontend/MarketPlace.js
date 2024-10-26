@@ -306,6 +306,19 @@ async function startApp() {
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getBoosterFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -631,7 +644,6 @@ async function startApp() {
     // Vérifier si un compte est sélectionné
     if (accounts.length > 0) {
       userAccount = accounts[0]; // Met à jour le compte utilisateur
-      await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
     } else {
       console.error("Aucun compte disponible après changement.");
     }
@@ -688,8 +700,6 @@ async function displayAvailableCards() {
 async function buyCard(cardId, priceInEther) {
 
   // Convertir le prix de ether à wei avant d'envoyer la transaction
-  console.log(userAccount);
-  console.log(priceInEther);
 
   // Envoyer la transaction pour acheter la carte avec le montant exact en wei
   await main.methods.buyCard(cardId,userAccount).send({ from: userAccount, value: priceInEther});

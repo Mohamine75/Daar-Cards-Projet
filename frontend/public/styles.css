@@ -134,7 +134,7 @@ footer p {
 
 .card-image {
     width: 100%;
-    height: 250px; /* Définir une hauteur fixe pour contrôler l'apparence de l'image */
+    height: 200px; /* Définir une hauteur fixe pour contrôler l'apparence de l'image */
     overflow: hidden;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -171,4 +171,20 @@ footer {
     color: white;
     text-align: center;
     padding: 5px 0; /* Réduction du padding pour un footer plus petit */
+}
+.modal-content {
+     min-height: 800px;
+     max-width: 500px;
+     margin: auto;
+ }
+/* Style pour forcer l'image à s'adapter à son conteneur */
+.modal-card .image {
+    width: 100%; /* Prend toute la largeur du conteneur */
+    height: auto; /* Maintient les proportions de l'image */
+}
+
+.modal-card img {
+    max-width: 100%; /* Empêche l'image de dépasser la largeur du conteneur */
+    max-height: 100%; /* Empêche l'image de dépasser la hauteur du conteneur */
+    object-fit: contain; /* S'assure que l'image est contenue dans son conteneur */
 }
