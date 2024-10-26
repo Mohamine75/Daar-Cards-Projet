@@ -2,8 +2,8 @@ const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
 var cards;
 var userAccount;
-const cardIds = new Map(); // globalId => index
-const cardInfos = new Map(); // globalId => bloc HTML contenant les détails de la carte
+var cardIds = new Map(); // globalId => index
+const cardInfos = new Map(); // globalId => objet contenant les attributs de la carte
 
 async function startApp() {
   const abi_main = [
@@ -641,14 +641,8 @@ async function startApp() {
   userAccount = accounts[0];
   
   // Afficher les cartes du propriétaire actuel
-  // await getCardsByOwner(userAccount).then(displayCards);
-  await getCardsByOwner(userAccount).then(async(ownerCards) => {
-    await fillIds(ownerCards);
-    await fillCardsInfo(cardIds);
-    displayCards(cardIds);
-    
-  })
-  registerCardCallbacks();
+  requestCards();
+  
 
   displayCollectionCount();
 
@@ -657,16 +651,20 @@ async function startApp() {
     // Vérifier si un compte est sélectionné
     if (accounts.length > 0) {
       userAccount = accounts[0]; // Met à jour le compte utilisateur
-      // await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
-      await getCardsByOwner(userAccount).then(async (ownerCards) => {
-        await fillIds(ownerCards);
-        await fillCardsInfo(cardIds);
-        displayCards(cardIds);
-      })
-      registerCardCallbacks();
+      requestCards();
     } else {
       console.error("Aucun compte disponible après changement.");
     }
+  });
+}
+
+async function requestCards() {
+  await getCardsByOwner(userAccount).then(async(ownerCards) => {
+    await fillIds(ownerCards);
+    await fillCardsInfo(cardIds);
+    cardIds = orderCards(cardIds, 'ASC', 'nom');
+    displayCards(cardIds);
+    registerCardCallbacks();
   });
 }
 
@@ -679,6 +677,7 @@ function fillIds(cardIdsOwner) {
 
 async function fillCardsInfo(cards) {
   for (const [id, index] of cards.entries()) {
+    // TODO : ici, possibilité d'appeler l'API pokemonTCG pour stocker + d'infos dans l'objet (pour afficher et trier)
     const card = await getCardDetails(id).then(card => {
       cardInfos.set(id, {
         nom: card.nom,
@@ -718,9 +717,45 @@ function registerCardCallbacks() {
   });
 }
 
+function orderCards(ids, order, orderBy) {
+  // TODO : rajouter les callbacks?
+  const cardInfosArray = Array.from(ids);
+  var nameA = "";
+  cardInfosArray.sort((a, b) => {
+    if (orderBy === 'nom')
+    {
+      nameA = cardInfos.get(a[0]).nom;
+      nameB = cardInfos.get(b[0]).nom;        
+    }
+    else if (orderBy === 'prix')
+    {
+      nameA = cardInfos.get(a[0]).prix;
+      nameB = cardInfos.get(b[0]).prix;        
+    }
+
+    if (order === 'ASC') {
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+    } else if (order == 'DESC') {
+      if (nameA < nameB) return 1;
+      if (nameA > nameB) return -1;
+    }
+    return 0;
+  });
+  for (let i = 0; i < cardInfosArray.length; i++) {
+    cardInfosArray[i][1] = i;
+  }
+  console.log(cardInfosArray);
+  return arrayToMap(cardInfosArray);
+}
+
 function displayCards(ids) {
+  // On tri par index
+  const entries = Array.from(ids.entries());
+  entries.sort((a, b) => a[1] - b[1]);
+  newIds = arrayToMap(entries);
   $("#cards").empty(); // Vider le conteneur de cartes
-  ids.forEach((index, id) => {
+  newIds.forEach((index, id) => {
     card = cardInfos.get(id);
     $("#cards").append(`
       <div class="column is-one-third">
@@ -748,6 +783,17 @@ function getCardDetails(id) {
   return main.methods.getCardDetails(id).call()
 }
 
+function getElementAt(map, index) {
+  let counter = 0;
+  for (const [key, value] of map) {
+    if (counter === index) {
+      return { key, value };
+    }
+    counter++;
+  }
+  return null;
+}
+
 function openModal(index, id, name, imgUrl, price, dispo) {
   name = decodeURIComponent(name);
   imgUrl = decodeURIComponent(imgUrl);
@@ -769,10 +815,6 @@ async function saveChanges() {
   const cardIndex = modal.getAttribute("data-index"); // Récupère l'index de l'affichage
   const newPrice = document.getElementById("modal-price").value;
   const newDispo = document.getElementById("modal-dispo").checked;
-  console.log(modal);
-  console.log(cardIndex);
-  console.log(newPrice);
-  console.log(newDispo);
 
   web3.eth.getAccounts().then(async accounts => {
     try {
@@ -781,12 +823,9 @@ async function saveChanges() {
         throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
       }
 
-      // TODO: trigger nouvelle récupération de getCardsByOwner
-      // Récupérer les IDs des cartes possédées par l'utilisateur
-      const ownedCardIds = await main.methods.getCardsByOwner(userAccount).call();
-      console.log("ownedCardsID :" + ownedCardIds)
-      // Utiliser l'index d'affichage pour récupérer le bon ID de carte
-      const cardId = ownedCardIds[cardIndex];
+      console.log(cardIds);
+      //const cardId = getElementAt(cardIds, cardIndex).key;
+      const cardId = Array.from(cardIds)[cardIndex][0];
       console.log(cardId);
 
       // Envoie la transaction pour changer le prix
@@ -812,22 +851,30 @@ function closeModal() {
   document.getElementById("cardModal").classList.remove("is-active");
 }
 
+function arrayToMap(array) {
+  const myMap = new Map();
+  for (let i = 0; i < array.length; i++) {
+    const key = array[i][0];
+    const value = array[i][1];
+    myMap.set(key, value);
+  }
+  return myMap;
+}
 
 document.getElementById('search').addEventListener('input', function(event) {
   const research = event.target.value;
   if (research == '') {
+    // TODO tri
+    cardIds = orderCards(cardIds, 'ASC', 'nom');
     displayCards(cardIds);
   } else {
     var toShow = Array.from(cardIds);
-    const cardIdsToShow = new Map();
     toShow = toShow.filter(([cardId, _]) => {
       return (cardInfos.get(cardId).nom.toLowerCase().includes(research.toLowerCase()));
     });
-    for (let i = 0; i < toShow.length; i++) {
-      const key = toShow[i][0];
-      const value = toShow[i][1];
-      cardIdsToShow.set(key, value);
-    }
+    cardIdsToShow = arrayToMap(toShow);
+    // TODO tri
+    cardIdsToShow = orderCards(cardIdsToShow, 'ASC', 'nom');
     displayCards(cardIdsToShow);
   }
   registerCardCallbacks();

@@ -9,6 +9,7 @@
   <script language="javascript" type="text/javascript" src="web3.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css"/>
 </head>
 
 <body>
@@ -54,6 +55,16 @@
       <label class="label">Nom</label>
       <div class="control">
         <input class="input" type="text" id="search" placeholder="Rechercher un pokémon">
+        <div class="select"><select name="sort-option" id="sort-option" class="select-hidden">
+          <option value="default" disabled="" selected="">Trier par</option>
+                                      <option value="128">Marque</option>
+                                      <option value="64">Désignation</option>
+                                      <option value="4">Top des ventes</option>
+                                      <option value="16">Note moyenne</option>
+                                      <option value="32">Nouveautés</option>
+                                      <option value="1">Prix croissant</option>
+                                      <option value="2">Prix décroissant</option>
+                              </select><div class="select-styled"><span class="disabled">Trier par<span></span></span></div><ul class="select-options"><li rel="default" class="disabled hidden ">Trier par</li><li rel="128" class="  ">Marque</li><li rel="64" class="  ">Désignation</li><li rel="4" class="  ">Top des ventes</li><li rel="16" class="  ">Note moyenne</li><li rel="32" class="  ">Nouveautés</li><li rel="1" class="  ">Prix croissant</li><li rel="2" class="  ">Prix décroissant</li></ul></div>
       </div>
     </div>
     <div class="columns is-multiline" id="cards">
