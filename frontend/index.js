@@ -642,9 +642,11 @@ async function startApp() {
   
   // Afficher les cartes du propriétaire actuel
   // await getCardsByOwner(userAccount).then(displayCards);
-  await getCardsByOwner(userAccount).then(ownerCards => {
-    fillIds(ownerCards);
+  await getCardsByOwner(userAccount).then(async(ownerCards) => {
+    await fillIds(ownerCards);
+    await fillCardsInfo(cardIds);
     displayCards(cardIds);
+    
   })
   registerCardCallbacks();
 
@@ -656,8 +658,9 @@ async function startApp() {
     if (accounts.length > 0) {
       userAccount = accounts[0]; // Met à jour le compte utilisateur
       // await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
-      await getCardsByOwner(userAccount).then(ownerCards => {
-        fillIds(ownerCards); // TODO : à appeler 1 seule fois par ownerx
+      await getCardsByOwner(userAccount).then(async (ownerCards) => {
+        await fillIds(ownerCards);
+        await fillCardsInfo(cardIds);
         displayCards(cardIds);
       })
       registerCardCallbacks();
@@ -674,6 +677,21 @@ function fillIds(cardIdsOwner) {
   });
 }
 
+async function fillCardsInfo(cards) {
+  for (const [id, index] of cards.entries()) {
+    const card = await getCardDetails(id).then(card => {
+      cardInfos.set(id, {
+        nom: card.nom,
+        id: card.id,
+        imageUrl: card.imageUrl,
+        prix: parseInt(card.prix),
+        dispo: card.dispo
+      })
+    })
+  
+  }
+}
+
 async function displayCollectionCount() {
   try {
     // Attendre que la promesse de l'appel au contrat soit résolue
@@ -688,45 +706,39 @@ async function displayCollectionCount() {
 }
 
 function registerCardCallbacks() {
-  Array.from(document.getElementsByClassName('card-item')).forEach((cardElement) => {
+  Array.from(document.getElementsByClassName('card')).forEach((cardElement) => {
     cardElement.onclick = function() {
-      const index = cardElement.getAttribute('data-index');
-      const cardId = cardElement.getAttribute('data-card-id');
-      const cardNom = cardElement.getAttribute('data-card-nom');
-      const cardImage = cardElement.getAttribute('data-card-image');
-      const cardPrix = cardElement.getAttribute('data-card-prix');
-      const cardDispo = cardElement.getAttribute('data-card-dispo');
+      var card = cardInfos.get(BigInt(cardElement.getAttribute('id')));
 
-      openModal(index, cardId, encodeURIComponent(cardNom), encodeURIComponent(cardImage), cardPrix, cardDispo);
+      console.log(cardIds);
+      console.log("index enregistré = " + cardElement.getAttribute('data-index'));
+      // TODO for search
+      openModal(cardElement.getAttribute('data-index'), card.id, encodeURIComponent(card.nom), encodeURIComponent(card.imageUrl), card.prix, card.dispo);
     };
   });
 }
 
-async function displayCards(ids) {
+function displayCards(ids) {
   $("#cards").empty(); // Vider le conteneur de cartes
-  ids.forEach((id, index) => {
-    getCardDetails(id).then(card => {
-      $("#cards").append(`
-<div class="column is-one-third">
-  <div class="card" style="height: 100%;" data-index="${index}">
-    <div class="card-image" style="position: relative;">
-      <figure class="image is-4by3">
-        <img src="${card.imageUrl}" alt="${card.nom} card image" style="object-fit: contain; width: 100%; height: auto;">
-      </figure>
-      <div class="card-overlay" style="position: absolute; bottom: 0; background: rgba(0, 0, 0, 0.5); color: white; width: 100%; padding: 10px; text-align: center;">
-        <p>Prix : ${card.prix}</p>
-        <p>Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}</p>
+  ids.forEach((index, id) => {
+    card = cardInfos.get(id);
+    $("#cards").append(`
+      <div class="column is-one-third">
+        <div class="card" style="height: 100%;" data-index="${index}" id="${id}">
+          <div class="card-image" style="position: relative;">
+            <figure class="image is-4by3">
+              <img src="${card.imageUrl}" alt="${card.nom} card image" style="object-fit: contain; width: 100%; height: auto;">
+            </figure>
+            <div class="card-overlay" style="position: absolute; bottom: 0; background: rgba(0, 0, 0, 0.5); color: white; width: 100%; padding: 10px; text-align: center;">
+              <p>Prix : ${card.prix}</p>
+              <p>Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
-`);
-
-    }).catch(error => {
-      console.error(`Error fetching card details for ID ${id}:`, error);
-    });
-  });
+      `)});
 }
+
 
 function getCardsByOwner(id) {
   return main.methods.getCardsByOwner(id).call()
@@ -757,6 +769,10 @@ async function saveChanges() {
   const cardIndex = modal.getAttribute("data-index"); // Récupère l'index de l'affichage
   const newPrice = document.getElementById("modal-price").value;
   const newDispo = document.getElementById("modal-dispo").checked;
+  console.log(modal);
+  console.log(cardIndex);
+  console.log(newPrice);
+  console.log(newDispo);
 
   web3.eth.getAccounts().then(async accounts => {
     try {
@@ -788,6 +804,7 @@ async function saveChanges() {
   }).catch(error => {
     console.error("Error getting user accounts:", error);
   });
+  document.getElementById('search').value = null;
   startApp();
 }
 
@@ -798,14 +815,20 @@ function closeModal() {
 
 document.getElementById('search').addEventListener('input', function(event) {
   const research = event.target.value;
-  console.log(research);
-  console.log(cardIds);
   if (research == '') {
     displayCards(cardIds);
   } else {
-    displayCards([]);
-    console.log(document.getElementById('cards'));
-    // TODO : trouver les cartes qui ne contiennent pas la chaîne et les éliminées
+    var toShow = Array.from(cardIds);
+    const cardIdsToShow = new Map();
+    toShow = toShow.filter(([cardId, _]) => {
+      return (cardInfos.get(cardId).nom.toLowerCase().includes(research.toLowerCase()));
+    });
+    for (let i = 0; i < toShow.length; i++) {
+      const key = toShow[i][0];
+      const value = toShow[i][1];
+      cardIdsToShow.set(key, value);
+    }
+    displayCards(cardIdsToShow);
   }
   registerCardCallbacks();
 });
