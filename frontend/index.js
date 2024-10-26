@@ -4,6 +4,7 @@ var cards;
 var userAccount;
 var cardIds = new Map(); // globalId => index
 const cardInfos = new Map(); // globalId => objet contenant les attributs de la carte
+var currCardIds = new Map();
 
 async function startApp() {
   const abi_main = [
@@ -672,6 +673,7 @@ function fillIds(cardIdsOwner) {
   // id = Id global de la carte | index = ordre d'affichage (à modifier à chaque fois qu'on fait display cards)
   cardIdsOwner.forEach((id, index) => {
     cardIds.set(id, index);
+    currCardIds.set(id, index);
   });
 }
 
@@ -862,7 +864,7 @@ function arrayToMap(array) {
 document.getElementById('search').addEventListener('input', function(event) {
   const research = event.target.value;
   if (research == '') {
-    // TODO tri
+    currCardIds = cardIds;
     cardIds = orderCards(cardIds, 'ASC', 'nom');
     displayCards(cardIds);
   } else {
@@ -870,14 +872,8 @@ document.getElementById('search').addEventListener('input', function(event) {
     toShow = toShow.filter(([cardId, _]) => {
       return (cardInfos.get(cardId).nom.toLowerCase().includes(research.toLowerCase()));
     });
-    
-    console.log("avant : " + Array.from(cardIds));
-    // TODO tri
-    // toShow.forEach((currGlobalId, index) => {
-    //   cardIds.set(currGlobalId[0], index);
-    // });
-    console.log("après : " + Array.from(cardIds));
     cardIdsToShow = arrayToMap(toShow);
+    currCardIds = cardIdsToShow;
     cardIdsToShow = orderCards(cardIdsToShow, 'ASC', 'nom');
     displayCards(cardIdsToShow);
   }
@@ -886,8 +882,8 @@ document.getElementById('search').addEventListener('input', function(event) {
 
 document.getElementById('sort-option').addEventListener('change', function() {
   document.getElementById('changeOrder').disabled = false;
-  cardIds = orderCards(cardIds, 'ASC', document.getElementById('sort-option').value);
-  displayCards(cardIds);
+  const tmpCardIds = orderCards(currCardIds, 'ASC', document.getElementById('sort-option').value);
+  displayCards(tmpCardIds);
   registerCardCallbacks();
 });
 
@@ -904,8 +900,8 @@ document.getElementById('changeOrder').onclick = function() {
         iconElement.classList.replace('fa-angle-down', 'fa-angle-up');
         currentOrder = 'ASC';
       }
-    cardIds = orderCards(cardIds, currentOrder, orderBy);
-    displayCards(cardIds);
+    const tmpCardIds = orderCards(currCardIds, currentOrder, orderBy);
+    displayCards(tmpCardIds);
     registerCardCallbacks();
 };
   
