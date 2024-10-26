@@ -743,7 +743,6 @@ function orderCards(ids, order, orderBy) {
   for (let i = 0; i < cardInfosArray.length; i++) {
     cardInfosArray[i][1] = i;
   }
-  console.log(cardInfosArray);
   return arrayToMap(cardInfosArray);
 }
 
@@ -868,7 +867,6 @@ document.getElementById('search').addEventListener('input', function(event) {
     displayCards(cardIds);
   } else {
     var toShow = Array.from(cardIds);
-    console.log(cardInfos);
     toShow = toShow.filter(([cardId, _]) => {
       return (cardInfos.get(cardId).nom.toLowerCase().includes(research.toLowerCase()));
     });
@@ -886,6 +884,31 @@ document.getElementById('search').addEventListener('input', function(event) {
   registerCardCallbacks();
 });
 
+document.getElementById('sort-option').addEventListener('change', function() {
+  document.getElementById('changeOrder').disabled = false;
+  cardIds = orderCards(cardIds, 'ASC', document.getElementById('sort-option').value);
+  displayCards(cardIds);
+  registerCardCallbacks();
+});
+
+var currentOrder = 'ASC';
+
+document.getElementById('changeOrder').onclick = function() {
+    const orderBy = document.getElementById('sort-option').value;
+    const iconElement = document.querySelector('.icon i');
+    if (currentOrder === 'ASC')
+      {
+        iconElement.classList.replace('fa-angle-up', 'fa-angle-down');
+        currentOrder = 'DESC';
+      } else {
+        iconElement.classList.replace('fa-angle-down', 'fa-angle-up');
+        currentOrder = 'ASC';
+      }
+    cardIds = orderCards(cardIds, currentOrder, orderBy);
+    displayCards(cardIds);
+    registerCardCallbacks();
+};
+  
 window.addEventListener('load', function() {
   if (typeof web3 !== 'undefined') {
     web3js = new Web3(web3.currentProvider);
