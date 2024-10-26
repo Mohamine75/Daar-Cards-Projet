@@ -711,14 +711,12 @@ function registerCardCallbacks() {
 
       console.log(cardIds);
       console.log("index enregistré = " + cardElement.getAttribute('data-index'));
-      // TODO for search
       openModal(cardElement.getAttribute('data-index'), card.id, encodeURIComponent(card.nom), encodeURIComponent(card.imageUrl), card.prix, card.dispo);
     };
   });
 }
 
 function orderCards(ids, order, orderBy) {
-  // TODO : rajouter les callbacks?
   const cardInfosArray = Array.from(ids);
   var nameA = "";
   cardInfosArray.sort((a, b) => {
@@ -755,11 +753,12 @@ function displayCards(ids) {
   entries.sort((a, b) => a[1] - b[1]);
   newIds = arrayToMap(entries);
   $("#cards").empty(); // Vider le conteneur de cartes
-  newIds.forEach((index, id) => {
+  newIds.forEach((_, id) => {
     card = cardInfos.get(id);
+    currIndex = cardIds.get(id);
     $("#cards").append(`
       <div class="column is-one-third">
-        <div class="card" style="height: 100%;" data-index="${index}" id="${id}">
+        <div class="card" style="height: 100%;" data-index="${currIndex}" id="${id}">
           <div class="card-image" style="position: relative;">
             <figure class="image is-4by3">
               <img src="${card.imageUrl}" alt="${card.nom} card image" style="object-fit: contain; width: 100%; height: auto;">
@@ -815,6 +814,8 @@ async function saveChanges() {
   const cardIndex = modal.getAttribute("data-index"); // Récupère l'index de l'affichage
   const newPrice = document.getElementById("modal-price").value;
   const newDispo = document.getElementById("modal-dispo").checked;
+  console.log("save changes");
+  console.log("index : " + cardIndex);
 
   web3.eth.getAccounts().then(async accounts => {
     try {
@@ -822,8 +823,6 @@ async function saveChanges() {
       if (isNaN(priceInBN) || priceInBN < 0 ) {
         throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
       }
-
-      console.log(cardIds);
       //const cardId = getElementAt(cardIds, cardIndex).key;
       const cardId = Array.from(cardIds)[cardIndex][0];
       console.log(cardId);
@@ -869,11 +868,18 @@ document.getElementById('search').addEventListener('input', function(event) {
     displayCards(cardIds);
   } else {
     var toShow = Array.from(cardIds);
+    console.log(cardInfos);
     toShow = toShow.filter(([cardId, _]) => {
       return (cardInfos.get(cardId).nom.toLowerCase().includes(research.toLowerCase()));
     });
-    cardIdsToShow = arrayToMap(toShow);
+    
+    console.log("avant : " + Array.from(cardIds));
     // TODO tri
+    // toShow.forEach((currGlobalId, index) => {
+    //   cardIds.set(currGlobalId[0], index);
+    // });
+    console.log("après : " + Array.from(cardIds));
+    cardIdsToShow = arrayToMap(toShow);
     cardIdsToShow = orderCards(cardIdsToShow, 'ASC', 'nom');
     displayCards(cardIdsToShow);
   }
