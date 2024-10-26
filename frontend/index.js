@@ -783,17 +783,6 @@ function getCardDetails(id) {
   return main.methods.getCardDetails(id).call()
 }
 
-function getElementAt(map, index) {
-  let counter = 0;
-  for (const [key, value] of map) {
-    if (counter === index) {
-      return { key, value };
-    }
-    counter++;
-  }
-  return null;
-}
-
 function openModal(index, id, name, imgUrl, price, dispo) {
   name = decodeURIComponent(name);
   imgUrl = decodeURIComponent(imgUrl);
@@ -824,7 +813,6 @@ async function saveChanges() {
       if (isNaN(priceInBN) || priceInBN < 0 ) {
         throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
       }
-      //const cardId = getElementAt(cardIds, cardIndex).key;
       const cardId = Array.from(cardIds)[cardIndex][0];
       console.log(cardId);
 
@@ -863,10 +851,12 @@ function arrayToMap(array) {
 
 document.getElementById('search').addEventListener('input', function(event) {
   const research = event.target.value;
+  const orderBy = document.getElementById('sort-option').value;
   if (research == '') {
     currCardIds = cardIds;
-    cardIds = orderCards(cardIds, 'ASC', 'nom');
+    cardIds = orderCards(cardIds, currentOrder, orderBy);
     displayCards(cardIds);
+    // TODO : fix
   } else {
     var toShow = Array.from(cardIds);
     toShow = toShow.filter(([cardId, _]) => {
@@ -874,7 +864,7 @@ document.getElementById('search').addEventListener('input', function(event) {
     });
     cardIdsToShow = arrayToMap(toShow);
     currCardIds = cardIdsToShow;
-    cardIdsToShow = orderCards(cardIdsToShow, 'ASC', 'nom');
+    cardIdsToShow = orderCards(cardIdsToShow, currentOrder, orderBy);
     displayCards(cardIdsToShow);
   }
   registerCardCallbacks();
