@@ -871,6 +871,8 @@ async function saveChanges() {
 
 function closeModal() {
   document.getElementById("cardModal").classList.remove("is-active");
+  document.getElementById("collectionModal").classList.remove("is-active");
+  document.getElementById("createCardModal").classList.remove("is-active");
 }
 
 function arrayToMap(array) {
@@ -932,8 +934,25 @@ document.getElementById('changeOrder').onclick = function() {
 document.getElementById('createCollection').onclick = function() {
   document.getElementById("collectionModal").classList.add("is-active");
 }
-
+document.getElementById('createCard').onclick = function() {
+  document.getElementById("createCardModal").classList.add("is-active");
+}
 async function createCollection() {
+  const colName = document.getElementById("modal-collName").value;
+  const img = document.getElementById("modal-imageUrl").value;
+  var colCount = document.getElementById("modal-collCount").value;
+  console.log(colName);
+  console.log(colCount);
+  colCount = parseInt(colCount);
+  if (isNaN(colCount) || colCount < 0 ) {
+    throw new Error("Collection count must be a valid uint256 value > 0.");
+  }
+  await main.methods.createCard(colName,img, colCount).send({ from: userAccount });
+  console.log("Card created");
+
+  document.getElementById("createCardModal").classList.remove("is-active");
+}
+async function createCard() {
   const colName = document.getElementById("modal-collName").value;
   var colCount = document.getElementById("modal-collCount").value;
   console.log(colName);
@@ -947,7 +966,6 @@ async function createCollection() {
 
   document.getElementById("collectionModal").classList.remove("is-active");
 }
-
 
 window.addEventListener('load', function() {
   if (typeof web3 !== 'undefined') {

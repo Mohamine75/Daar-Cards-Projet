@@ -135,7 +135,7 @@
   <div class="modal-background"></div>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title" id="modal-title">Card Title</p>
+      <p class="modal-card-title" id="modal-title">Créer une collection</p>
       <button class="delete" aria-label="close" onclick="closeModal()"></button>
     </header>
     <section class="modal-card-body">
@@ -147,6 +147,27 @@
   </section>
   <footer class="modal-card-foot">
     <button class="button is-success" onclick="createCollection()">Create collection</button>
+    <button class="button" onclick="closeModal()">Cancel</button>
+  </footer>
+</div>
+
+
+<!-- Modal pour créer une carte -->
+<div id="createCardModal" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title" id="modal-title">Card Title</p>
+      <button class="delete" aria-label="close" onclick="closeModal()"></button>
+    </header>
+    <section class="modal-card-body">
+        <p><strong>Nom :</strong> <input id="modal-collName" type="text" value="" class="input"></p>
+        <p><strong>Lien de l'image :</strong> <input id="modal-imageUrl" type="text" value="" class="input"></p>
+        <p><strong>Numéro de la collection:</strong> <input id="modal-collCount" type="text" value="0" class="input"></p>
+  </div>
+  </section>
+  <footer class="modal-card-foot">
+    <button class="button is-success" onclick="createCard()">Create collection</button>
     <button class="button" onclick="closeModal()">Cancel</button>
   </footer>
 </div>
