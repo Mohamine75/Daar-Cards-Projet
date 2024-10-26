@@ -1,5 +1,4 @@
 const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
-
 var cards;
 var userAccount;
 var cardIds = new Map(); // globalId => index
@@ -644,7 +643,7 @@ async function startApp() {
   // Afficher les cartes du propriétaire actuel
   requestCards();
   
-
+  console.log(main.events);
   displayCollectionCount();
 
   // Écouter les changements de compte
@@ -658,6 +657,7 @@ async function startApp() {
     }
   });
 }
+
 
 async function requestCards() {
   cardIds = new Map(); // globalId => index
@@ -753,7 +753,7 @@ function orderCards(ids, order, orderBy) {
 }
 
 function displayCards(ids) {
-  // On tri par index
+  // On trie par index
   const entries = Array.from(ids.entries());
   entries.sort((a, b) => a[1] - b[1]);
   newIds = arrayToMap(entries);
@@ -762,20 +762,32 @@ function displayCards(ids) {
     card = cardInfos.get(id);
     currIndex = cardIds.get(id);
     $("#cards").append(`
-      <div class="column is-one-third">
-        <div class="card" style="height: 100%;" data-index="${currIndex}" id="${id}">
-          <div class="card-image" style="position: relative;">
+      <div class="column is-one-quarter" style="margin: 10px;">
+        <div class="card" style="height: 100%; position: relative;" data-index="${currIndex}" id="${id}">
+          <div class="card-image">
             <figure class="image is-4by3">
-              <img src="${card.imageUrl}" alt="${card.nom} card image" style="object-fit: contain; width: 100%; height: auto;">
+              <img src="${card.imageUrl}" alt="${card.nom}">
             </figure>
-            <div class="card-overlay" style="position: absolute; bottom: 0; background: rgba(0, 0, 0, 0.5); color: white; width: 100%; padding: 10px; text-align: center;">
+            <div class="card-overlay card-overlay-hidden" style="
+              position: absolute; 
+              top: 90%; 
+              left: 50%;
+              transform: translate(-50%, -50%);
+              background: rgba(128, 128, 128, 0.8); /* Gris avec un peu de transparence */
+              color: white; 
+              width: 100%; 
+              padding: 5px; 
+              text-align: center; 
+              border-radius: 8px;
+              ">
               <p>Prix : ${card.prix}</p>
-              <p>Disponibilité : ${card.dispo ? 'Disponible' : 'Indisponible'}</p>
+              <p>${card.dispo ? 'Disponible' : 'Indisponible'}</p>
             </div>
           </div>
         </div>
       </div>
-      `)});
+    `);
+  });
 }
 
 
@@ -898,7 +910,27 @@ document.getElementById('changeOrder').onclick = function() {
     displayCards(tmpCardIds);
     registerCardCallbacks();
 };
-  
+
+document.getElementById('createCollection').onclick = function() {
+  document.getElementById("collectionModal").classList.add("is-active");
+}
+
+async function createCollection() {
+  const colName = document.getElementById("modal-collName").value;
+  var colCount = document.getElementById("modal-collCount").value;
+  console.log(colName);
+  console.log(colCount);
+  colCount = parseInt(colCount);
+  if (isNaN(colCount) || colCount < 1 ) {
+    throw new Error("Collection count must be a valid uint256 value > 0.");
+  }
+  await main.methods.createCollection(colName, colCount).send({ from: userAccount });
+  console.log("Collection created successfully");
+
+  document.getElementById("collectionModal").classList.remove("is-active");
+}
+
+
 window.addEventListener('load', function() {
   if (typeof web3 !== 'undefined') {
     web3js = new Web3(web3.currentProvider);

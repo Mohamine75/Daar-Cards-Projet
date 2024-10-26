@@ -66,21 +66,30 @@
               </select>
             </div>
           </div>
-        
+
           <!-- Wrapper for button -->
           <div class="control">
             <button class="button is-primary is-light" id="changeOrder" disabled>
               <span class="icon"><i class="fas fa-angle-up"></i></span>
             </button>
           </div>
+          <div class="control">
+            <button class="button is-primary is-light" id="createCollection">
+              Créer une collection
+            </button>
+          </div>
+          <div class="control">
+            <button class="button is-primary is-light" id="createCard">
+              Créer une carte
+            </button>
+          </div>
         </div>
+      </div>
+      <div class="columns is-multiline mt-1" id="cards">
+        <!-- Les cartes seront ajoutées ici -->
+      </div>
     </div>
-    <div class="columns is-multiline mt-1" id="cards">
-      <!-- Les cartes seront ajoutées ici -->
-    </div>
-  </div>
 </section>
-
 
 <!-- Modal pour visualiser et éditer une carte -->
 <div id="cardModal" class="modal">
@@ -116,7 +125,28 @@
     </footer>
   </div>
 </div>
+<!-- Modal pour créer une collection -->
+<div id="collectionModal" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title" id="modal-title">Card Title</p>
+      <button class="delete" aria-label="close" onclick="closeModal()"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="column is-half">
+        <p><strong>Nom :</strong> <input id="modal-collName" type="text" value="" class="input"></p>
+        <p><strong>Nombre de cartes :</strong> <input id="modal-collCount" type="text" value="0" class="input"></p>
+      </div>
+  </div>
+  </section>
+  <footer class="modal-card-foot">
+    <button class="button is-success" onclick="createCollection()">Create collection</button>
+    <button class="button" onclick="closeModal()">Cancel</button>
+  </footer>
+</div>
 
+</div>
 <!-- Footer -->
 <footer class="footer">
   <div class="content has-text-centered">

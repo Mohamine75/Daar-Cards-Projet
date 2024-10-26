@@ -150,6 +150,16 @@ footer p {
     transform: scale(1.05); /* Agrandir légèrement la carte au survol */
 }
 
+/* Cache la bandelette par défaut */
+.card-overlay-hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Affiche la bandelette au survol */
+.card:hover .card-overlay-hidden {
+    opacity: 1;
+}
 
 
 .card-content {
