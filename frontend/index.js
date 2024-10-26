@@ -2,6 +2,8 @@ const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
 var cards;
 var userAccount;
+const cardIds = new Map(); // globalId => index
+const cardInfos = new Map(); // globalId => bloc HTML contenant les détails de la carte
 
 async function startApp() {
   const abi_main = [
@@ -637,9 +639,14 @@ async function startApp() {
 
   // Utiliser le premier compte comme compte utilisateur (ou vous pouvez avoir une logique pour choisir un autre compte)
   userAccount = accounts[0];
-
+  
   // Afficher les cartes du propriétaire actuel
-  await getCardsByOwner(userAccount).then(displayCards);
+  // await getCardsByOwner(userAccount).then(displayCards);
+  await getCardsByOwner(userAccount).then(ownerCards => {
+    fillIds(ownerCards);
+    displayCards(cardIds);
+  })
+  registerCardCallbacks();
 
   displayCollectionCount();
 
@@ -648,10 +655,22 @@ async function startApp() {
     // Vérifier si un compte est sélectionné
     if (accounts.length > 0) {
       userAccount = accounts[0]; // Met à jour le compte utilisateur
-      await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
+      // await getCardsByOwner(userAccount).then(displayCards); // Recharger les cartes du nouveau compte
+      await getCardsByOwner(userAccount).then(ownerCards => {
+        fillIds(ownerCards); // TODO : à appeler 1 seule fois par ownerx
+        displayCards(cardIds);
+      })
+      registerCardCallbacks();
     } else {
       console.error("Aucun compte disponible après changement.");
     }
+  });
+}
+
+function fillIds(cardIdsOwner) {
+  // id = Id global de la carte | index = ordre d'affichage (à modifier à chaque fois qu'on fait display cards)
+  cardIdsOwner.forEach((id, index) => {
+    cardIds.set(id, index);
   });
 }
 
@@ -668,6 +687,20 @@ async function displayCollectionCount() {
   }
 }
 
+function registerCardCallbacks() {
+  Array.from(document.getElementsByClassName('card-item')).forEach((cardElement) => {
+    cardElement.onclick = function() {
+      const index = cardElement.getAttribute('data-index');
+      const cardId = cardElement.getAttribute('data-card-id');
+      const cardNom = cardElement.getAttribute('data-card-nom');
+      const cardImage = cardElement.getAttribute('data-card-image');
+      const cardPrix = cardElement.getAttribute('data-card-prix');
+      const cardDispo = cardElement.getAttribute('data-card-dispo');
+
+      openModal(index, cardId, encodeURIComponent(cardNom), encodeURIComponent(cardImage), cardPrix, cardDispo);
+    };
+  });
+}
 
 async function displayCards(ids) {
   $("#cards").empty(); // Vider le conteneur de cartes
@@ -675,7 +708,7 @@ async function displayCards(ids) {
     getCardDetails(id).then(card => {
       $("#cards").append(`
 <div class="column is-one-third">
-  <div class="card" style="height: 100%;" data-index="${index}" onclick="openModal(${index}, ${card.id}, '${encodeURIComponent(card.nom)}', '${encodeURIComponent(card.imageUrl)}', ${card.prix}, ${card.dispo})">
+  <div class="card" style="height: 100%;" data-index="${index}">
     <div class="card-image" style="position: relative;">
       <figure class="image is-4by3">
         <img src="${card.imageUrl}" alt="${card.nom} card image" style="object-fit: contain; width: 100%; height: auto;">
@@ -732,6 +765,7 @@ async function saveChanges() {
         throw new Error("Price must be a valid uint32 value between 0 and 4294967295.");
       }
 
+      // TODO: trigger nouvelle récupération de getCardsByOwner
       // Récupérer les IDs des cartes possédées par l'utilisateur
       const ownedCardIds = await main.methods.getCardsByOwner(userAccount).call();
       console.log("ownedCardsID :" + ownedCardIds)
@@ -762,8 +796,18 @@ function closeModal() {
 }
 
 
-document.getElementById('search').addEventListener('input', function(event) { // TODO:
+document.getElementById('search').addEventListener('input', function(event) {
   const research = event.target.value;
+  console.log(research);
+  console.log(cardIds);
+  if (research == '') {
+    displayCards(cardIds);
+  } else {
+    displayCards([]);
+    console.log(document.getElementById('cards'));
+    // TODO : trouver les cartes qui ne contiennent pas la chaîne et les éliminées
+  }
+  registerCardCallbacks();
 });
 
 window.addEventListener('load', function() {
