@@ -727,23 +727,30 @@ $(document).ready(function () {
 
   // Gérer l'achat de booster
   $('#confirmPurchase').on('click', async function () {
-    const amountOfCards = $('#amountOfCards').val();
-    const collectionId = $(this).data('collection-id'); // Récupérer l'ID de la collection
+    const amountOfBoosters = $('#amountOfCards').val();
+    const collectionId = $(this).data('collection-id');
 
     try {
-      // Appeler la fonction du contrat pour acheter un booster
-      console.log(amountOfCards);
-      console.log(collectionId);
-      const fee = await main.methods.getBoosterFee().call();
-      console.log(userAccount);
-      await main.methods.openBooster(collectionId, amountOfCards, userAccount).send({ from: userAccount, value: fee });
-      alert('Achat du booster réussi !');
-    } catch (error) {
-      console.error('Erreur lors de l\'achat du booster:', error);
-      alert('Erreur lors de l\'achat du booster. Veuillez réessayer.');
-    }
+      // Disable the purchase button and show a loading indicator
+      $('#confirmPurchase').prop('disabled', true);
+      $('#loadingIndicator').show();
 
-    $('#boosterModal').removeClass('is-active'); // Fermer la modal après l'achat
+      const fee = await main.methods.getBoosterFee().call();
+
+      for (let i = 0; i < amountOfBoosters; i++) {
+        await main.methods.openBooster(collectionId, 2, userAccount).send({ from: userAccount, value: fee });
+      }
+
+      alert('Booster purchase successful!');
+    } catch (error) {
+      console.error('Error during booster purchase:', error);
+      alert('Error during booster purchase. Please try again.');
+    } finally {
+      // Enable the purchase button and hide the loading indicator
+      $('#confirmPurchase').prop('disabled', false);
+      $('#loadingIndicator').hide();
+      $('#boosterModal').removeClass('is-active');
+    }
   });
 });
 

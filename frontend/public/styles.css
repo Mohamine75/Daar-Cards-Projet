@@ -213,7 +213,7 @@ footer p {
     padding: 10px; /* Espace interne pour le contenu */
 }
 #modal-id {
-    color: black;
+    color: white;
 }
 .modal-content {
      min-height: 800px;
@@ -282,4 +282,25 @@ footer p {
     color: #ff4ecd; /* Change la couleur pour correspondre à votre thème */
     background-color: white; /* New line for hover background color */
     font-weight: normal; /* Préserver le poids pour éviter le squeezing */
+}
+
+.label:not(:last-child) {
+    margin-bottom: .5em;
+    color: bisque;
+}
+blockquote, body, dd, dl, dt, fieldset, figure, h1, h2, h3, h4, h5, h6, hr, html, iframe, legend, li, ol, p, pre, textarea, ul {
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+strong {
+    color: bisque;
+    font-weight: 700;
+}
+.modal-card-title {
+    color: bisque;
+    flex-grow: 1;
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    line-height: 1;
 }
