@@ -683,7 +683,7 @@ async function displayAvailableCards() {
             </div>
             <div class="card-content">
               <p class="title is-5">${card.cardType.nom}</p>
-              <p>Price: ${card.cardType.prix} ETH</p>
+              <p class="price-text">Price: ${card.cardType.prix} ETH</p>
               <button class="button is-primary" onclick="buyCard(${index}, ${card.cardType.prix})">Buy Now</button>
             </div>
           </div>

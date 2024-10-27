@@ -1,18 +1,18 @@
 /* Global settings */
 
 html, body {
-    height: 100%; /* Assurer que le body prend toute la hauteur */
-    margin: 0; /* Retirer les marges par défaut */
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #3a1c71;
 }
 
 
 body {
-    display: flex;
-    flex-direction: column; /* Organiser les éléments en colonne */
-    font-family: Arial, sans-serif;
-    padding: 0;
-    background-color: #3c3656; /* Fond sombre */
-    color: #e0e0e0; /* Texte clair */
+    background-color: #3a1c71 !important;
+    background-size: cover;
+    color: white;
 }
 /* Container for the main content */
 .container {
@@ -20,6 +20,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    background-color: transparent;
 }
 
 /* Header styles */
@@ -30,20 +31,52 @@ header {
     text-align: center;
 }
 .column {
-    padding: 0; /* Supprime les marges/paddings superflus */
+    padding: 20px; /* Supprime les marges/paddings superflus */
 }
 header h1 {
     margin: 0;
     font-size: 2.5rem;
 }
-
-/* Navigation menu */
-nav {
-    background-color: #441bec !important; /* Violet foncé pour la navbar */
-    padding: 10px; /* Ajoute du padding pour la navbar */
+.title.is-5 {
+    font-size: 1.25rem;
+    color: burlywood;
+}
+.title.is-4 {
+    font-size: 1.5rem;
+    color: burlywood;
+}
+.navbar {
+    min-height: 50px;
+    background: transparent;
+    box-shadow: none;
+}
+.navbar-item.has-text-white {
+    min-height: 50px;
+    font-weight: bold;
+    padding : 50px;
+}
+.navbar-item {
+    transition: color 0.3s ease, background-color 0.3s ease;
 }
 
+.section {
+    flex: 1;
+    padding-top: 50px;
+    background-color: transparent;
+}
 
+#collections-container {
+    background-color: transparent;
+}
+.columns > .column {
+    background-color: transparent;
+}
+h1.title {
+    font-size: 3rem;
+    text-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-weight: bold;
+}
 nav ul {
     list-style: none;
     padding: 0;
@@ -65,10 +98,13 @@ nav ul li a {
     transition: background-color 0.3s; /* Transition pour l'effet de survol */
 }
 
-nav ul li a:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Légère couleur de fond au survol */
-    color: #d4a5ff; /* Violet plus clair au survol */
+.button.is-primary {
+    background-color: #ff4ecd;
+    color: white;
+    font-weight: bold;
 }
+
+
 
 /* Main content section */
 main {
@@ -111,17 +147,15 @@ article a {
     font-weight: bold;
 }
 
-article a:hover {
-    color: #d4a5ff; /* Violet plus clair au survol */
-}
 
 /* Footer styles */
 footer {
-    background-color: #441bec !important; /* Violet foncé */
+    margin-top: auto;
+
+    background-color: transparent !important; /* Violet foncé */
     color: white;
     text-align: center;
     padding: 10px 0; /* Padding pour le footer */
-    margin-top: 20px;
 }
 footer p {
     margin: 0;
@@ -129,9 +163,11 @@ footer p {
 }
 
 .card {
-    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1); /* Blanc transparent */
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .card-image {
     width: 100%;
     height: 200px; /* Définir une hauteur fixe pour contrôler l'apparence de l'image */
@@ -147,10 +183,17 @@ footer p {
     background-color: #f0f0f0; /* Optionnel: couleur de fond pour combler les espaces */
 }
 .card:hover {
-    transform: scale(1.05); /* Agrandir légèrement la carte au survol */
+    transform: translate(-2px, -5px) rotate(1deg);
+    transition: transform 0.2s ease-in-out;
 }
-
 /* Cache la bandelette par défaut */
+.card-overlay {
+    background: rgba(0, 0, 0, 0.6); /* Noir avec un peu de transparence */
+    color: white;
+    padding: 5px;
+    text-align: center;
+    border-radius: 0 0 8px 8px;
+}
 .card-overlay-hidden {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -161,16 +204,16 @@ footer p {
     opacity: 1;
 }
 
+#cards {
+    background-color: transparent !important;
+}
 
 .card-content {
     height: 40%; /* Ajuster le contenu à 40% de la hauteur de la carte */
     padding: 10px; /* Espace interne pour le contenu */
 }
-footer {
-    background-color: #6a0dad; /* Violet foncé */
-    color: white;
-    text-align: center;
-    padding: 5px 0; /* Réduction du padding pour un footer plus petit */
+#modal-id {
+    color: black;
 }
 .modal-content {
      min-height: 800px;
@@ -187,4 +230,56 @@ footer {
     max-width: 100%; /* Empêche l'image de dépasser la largeur du conteneur */
     max-height: 100%; /* Empêche l'image de dépasser la hauteur du conteneur */
     object-fit: contain; /* S'assure que l'image est contenue dans son conteneur */
+}
+.modal-card-body {
+    border-bottom: none;
+    -webkit-overflow-scrolling: touch;
+    background-color: #6a0dad;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: auto;
+    padding: 20px;
+}
+.collections-container{
+    color : #6a0dad;
+}
+.modal-card-head {
+    border-bottom: none;
+    background-color : #3a1c71;
+    border-bottom: 1px solid #dbdbdb;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+#box is-shadowless{
+    background-color : transparent;
+}
+
+.box{
+    background-color : transparent;
+}
+.card-image:last-child img {
+    background-color: transparent;
+    border-bottom-left-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+}
+.card-image:first-child img {
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    background-color: transparent;
+}
+
+.price-text {
+    color: #ffffff; /* Texte blanc pour contraster avec le fond violet */
+    background-color: rgba(0, 0, 0, 0.6); /* Fond noir semi-transparent */
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.2em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Légère ombre pour le rendre plus visible */
+}
+
+.navbar-item:hover {
+    color: #ff4ecd; /* Change la couleur pour correspondre à votre thème */
+    background-color: white; /* New line for hover background color */
+    font-weight: normal; /* Préserver le poids pour éviter le squeezing */
 }
