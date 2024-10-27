@@ -937,7 +937,7 @@ document.getElementById('createCollection').onclick = function() {
 document.getElementById('createCard').onclick = function() {
   document.getElementById("createCardModal").classList.add("is-active");
 }
-async function createCollection() {
+async function createCard() {
   const colName = document.getElementById("modal-collName").value;
   const img = document.getElementById("modal-imageUrl").value;
   var colCount = document.getElementById("modal-collCount").value;
@@ -947,12 +947,13 @@ async function createCollection() {
   if (isNaN(colCount) || colCount < 0 ) {
     throw new Error("Collection count must be a valid uint256 value > 0.");
   }
+  main.methods.getCurrentCardCount().then(console.log);
   await main.methods.createCard(colName,img, colCount).send({ from: userAccount });
   console.log("Card created");
 
   document.getElementById("createCardModal").classList.remove("is-active");
 }
-async function createCard() {
+async function createCollection() {
   const colName = document.getElementById("modal-collName").value;
   var colCount = document.getElementById("modal-collCount").value;
   console.log(colName);
